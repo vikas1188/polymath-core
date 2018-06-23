@@ -62,7 +62,7 @@ Modules allow custom add-in functionality in the issuance process and beyond. Th
 # Stepping through an issuance with the CLI Tool
 First, assure that you have [setup Polymath Core properly](#setup).
 
-The CLI (Command Line Interface) ST-20 Generator tool is a wizard-like script that will guide technical users in the creation and deployment of an ST-20 token. The commands are operated from a *nix command prompt (unix or mac).
+The CLI (Command Line Interface) ST-20 Generator tool is a wizard-like script that will guide technical users in the creation and deployment of an ST-20 token. The commands are operated from a nix command prompt (unix or mac).
 
 To use it, make sure you are connected to a full ethereum node (or locally to `ganache-cli`, a local private test network).
 You can run Parity with the following command to get started (make sure the node is fully synced before using the CLI tool):
@@ -115,14 +115,17 @@ node demo/transfer TOKEN_SYMBOL ACCOUNT_TO AMOUNT
 # Setting up Polymath Core
 ## KOVAN
 
-### v1.1.0 (TORO Release)
+### v1.2.0 (TORO Release)
 
-| Contract                                                         | Address                                                                                                                       |
-| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| TickerRegistry:                                               | [0xcf82d3f2abdf777f559e98d85f976283595f0d30](https://kovan.etherscan.io/address/0xcf82d3f2abdf777f559e98d85f976283595f0d30)                                              |
-| SecurityTokenRegistry:                                        | [0x00d4671f8c00fcfc2256e008242f07c1428b5836](https://kovan.etherscan.io/address/0x00d4671f8c00fcfc2256e008242f07c1428b5836)                                              |
-| ModuleRegistry:                                               | [0x719287e2f1dfc7d953d0c1f05fdf27934d9c6f30](https://kovan.etherscan.io/address/0x719287e2f1dfc7d953d0c1f05fdf27934d9c6f30)                                              |
-| CappedSTOFactory:                                               | [0x30e2c3fa3297808a2e9f176be6cc587cb76259c4](https://kovan.etherscan.io/address/0x30e2c3fa3297808a2e9f176be6cc587cb76259c4)                                              |
+Contract | Address
+- | -
+TickerRegistry: | [0xf1b64cd44f8da99b518ec530bf8c0d5a04c7dbda](https://kovan.etherscan.io/address/0xf1b64cd44f8da99b518ec530bf8c0d5a04c7dbda)
+SecurityTokenRegistry: | [0x26142ca417b712379f0e52ffa906492515db891a](https://kovan.etherscan.io/address/0x26142ca417b712379f0e52ffa906492515db891a)
+ModuleRegistry: | [0x4785fbc411af7afc407c1182ac1b67594af62afa](https://kovan.etherscan.io/address/0x4785fbc411af7afc407c1182ac1b67594af62afa)
+CappedSTOFactory: | [0xb7ded4e2da6324cac7f46fba242e1988101f40d2](https://kovan.etherscan.io/address/0xb7ded4e2da6324cac7f46fba242e1988101f40d2)
+EthDividendsCheckpointFactory: | [0x8e895bea58e7a639e58d6c196acad81f173903e5](https://kovan.etherscan.io/address/0x8e895bea58e7a639e58d6c196acad81f173903e5)
+TORO V1.2.0 Token: | [0x2573D0946810da2C95B3A63cB4c8cc3aF0E95723](https://kovan.etherscan.io/address/0x2573D0946810da2C95B3A63cB4c8cc3aF0E95723)
+TORO V1.2.0 CappedSTO: | [0xCB1F57bf24b32466116eD5f359595a5BEba7A166](https://kovan.etherscan.io/address/0xCB1F57bf24b32466116eD5f359595a5BEba7A166)
 
 ## Setup
 
