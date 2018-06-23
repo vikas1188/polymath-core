@@ -132,8 +132,8 @@ node demo/module_manager
 This script allows you to create and explore checkpoints using a ETH or ERC20 checkpoint module.
 
 ```bash
-node demo/checkpoint/ethExplorer.js
-node demo/checkpoint/erc20Explorer.js
+node demo/checkpoint/ethExplorer
+node demo/checkpoint/erc20Explorer
 ```
 
 # Setting up Polymath Core
