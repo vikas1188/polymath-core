@@ -59,10 +59,10 @@ The security token registry keeps track of deployed STs on the Polymath Platform
 Modules allow custom add-in functionality in the issuance process and beyond. The module registry keeps track of modules added by Polymath or any other users. Modules can only be attached to STs if Polymath has previously verified them. If not, the only user able to utilize a module is its owner, and they should be using it "at their own risk".
 
 
-# Stepping through an issuance with the CLI Tool
-First, assure that you have [setup Polymath Core properly](#setup).
+# Using the CLI Tool
 
-The CLI (Command Line Interface) ST-20 Generator tool is a wizard-like script that will guide technical users in the creation and deployment of an ST-20 token. The commands are operated from a nix command prompt (unix or mac).
+The CLI (Command Line Interface) tools allow you to step through the issuance of a ST-20 security token and other important actions on the polymath-core platform.
+First, assure you have [setup Polymath Core properly](#setup).
 
 To use it, make sure you are connected to a full ethereum node (or locally to `ganache-cli`, a local private test network).
 You can run Parity with the following command to get started (make sure the node is fully synced before using the CLI tool):
@@ -71,38 +71,38 @@ You can run Parity with the following command to get started (make sure the node
 parity --chain ropsten  --rpcapi "eth,net,web3,personal,parity" --unlock YOUR_ETH_ACCOUNT --password $HOME/password.file
 ```
 
-1. Edit `demo/helpers/contract_addresses.js` to make sure scripts are pointing to the correct contract addresses
-2. On the terminal, run the following command: `npm run st20Generator`
-3. Follow the text prompts:
-    * You will be asked for a token symbol. Enter a new symbol to register or a symbol you have already registered.
-    * Enter a token name (long name seen by investors) to complete the token registration process. The token will be deployed to the blockchain.
-    * (Optional) If you want to issue tokens to an address you own, enter the address and then how many tokens you want to issue.
-    * Configure the Capped STO. Enter start and end times, the issuance cap, and exchange rate.
-4. Once the process is finished, you can run the `npm run st20generator` command again and enter the token symbol to see the STO's live-progress.
+## Launching a Security Token and STO
 
-## Whitelisting investors
+1. Edit `demo/helpers/contract_addresses.js` to make sure scripts are pointing to the correct contract addresses.
+2. On the terminal, run the following command and follow the prompts.
+3. Once the process is finished, you can run the command again and enter the token symbol to see the STO's status.
 
-After starting the STO you can run a whitelist script to mass-update a whitelist of allowed/known investors.
-Make sure the `whitelist_data.csv` file is present in the demo folder.
+```bash
+node demo/st20generator
+```
+
+## Whitelisting Investors
+
+After starting the STO you can add a list of addresses to the whitelist as allowed investors.
+Update the `whitelist_data.csv` file with the list of approved addresses.
 
 ```bash
 node demo/whitelist TOKEN_SYMBOL
 ```
 
-## Investing in the STO
+## Investing an STO
 
-You can run the invest script to participate in any STO you have been whitelisted for.
-The script takes 3 parameters:
-- The token symbol for the STO you want to invest in
-- The account that will receive the tokens
-- How much ETH to send
+You can run the investor portal script to participate in any STO you have been whitelisted for.
 
 ```bash
-node demo/invest TOKEN_SYMBOL BENEFICIARY ETHER
+node demo/investor_portal
 ```
 
-## Transferring tokens
+## Transferring Tokens
+
 You can run the transfer script to transfer ST tokens to another account (as long as both are whitelisted and have been cleared of any lockup periods).
+
+The script takes 3 parameters:
 - The token symbol of the ST you want to transfer
 - The account that will receive the tokens
 - How many tokens to send
@@ -111,6 +111,30 @@ You can run the transfer script to transfer ST tokens to another account (as lon
 node demo/transfer TOKEN_SYMBOL ACCOUNT_TO AMOUNT
 ```
 
+## Managing Modules
+
+Using the module management script, you can see the status of the modules attached to the security token you issued and perform a set of actions.
+
+Here are the actions:
+1. Add a module
+2. Pause and unpause a module
+3. Remove a module
+4. Change a module budget
+5. Mint tokens
+6. Permanently end minting
+
+```bash
+node demo/module_manager
+```
+
+## Using Checkpoints
+
+This script allows you to create and explore checkpoints using a ETH or ERC20 checkpoint module.
+
+```bash
+node demo/checkpoint/ethExplorer.js
+node demo/checkpoint/erc20Explorer.js
+```
 
 # Setting up Polymath Core
 ## KOVAN
