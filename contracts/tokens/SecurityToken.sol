@@ -56,6 +56,10 @@ contract SecurityToken is ISecurityToken {
     // Module list should be order agnostic!
     mapping (uint8 => ModuleData[]) public modules;
 
+    // Mapping of addresses authorised to do forced transfers.
+    // If forceTransferDisabled is true, this is ignored
+    mapping (address => bool) public forceTransferAuthorised;
+
     uint8 public constant MAX_MODULES = 20;
 
     mapping (address => bool) public investorListed;
@@ -89,9 +93,17 @@ contract SecurityToken is ISecurityToken {
     event LogFinishMintingSTO(uint256 _timestamp);
     // Change the STR address in the event of a upgrade
     event LogChangeSTRAddress(address indexed _oldAddress, address indexed _newAddress);
+    // Change the forceTransfer authorised address
+    event LogChangeForceTransferAuthorised(address indexed _forcer, bool _allowed);
 
-    // If _fallback is true, then for STO module type we only allow the module if it is set, if it is not set we only allow the owner 
-    // for other _moduleType we allow both issuer and module. 
+    // Check that the sender is authorised to force transfers
+    modifier isForceTransferAuthorised {
+        require(forceTransferAuthorised[msg.sender]);
+        _;
+    }
+
+    // If _fallback is true, then for STO module type we only allow the module if it is set, if it is not set we only allow the owner
+    // for other _moduleType we allow both issuer and module.
     modifier onlyModule(uint8 _moduleType, bool _fallback) {
       //Loop over all modules of type _moduleType
         bool isModuleType = false;
@@ -109,8 +121,9 @@ contract SecurityToken is ISecurityToken {
         _;
     }
 
-    modifier checkGranularity(uint256 _amount) {
-        require(_amount.div(granularity).mul(granularity) == _amount, "Unable to modify token balances at this granularity");
+    // Checks that _value is at the correct granularity
+    modifier checkGranularity(uint256 _value) {
+        require(_value.div(granularity).mul(granularity) == _value, "Unable to modify token balances at this granularity");
         _;
     }
 
@@ -153,6 +166,24 @@ contract SecurityToken is ISecurityToken {
         transferFunctions[bytes4(keccak256("transferFrom(address,address,uint256)"))] = true;
         transferFunctions[bytes4(keccak256("mint(address,uint256)"))] = true;
         transferFunctions[bytes4(keccak256("burn(uint256)"))] = true;
+    }
+
+    /**
+     * @notice Issuer can enable / disable addresses for force transfer authorisation
+     * @param _forcer Address of user to authorise / deauthorise
+     * @param _valid Whether the address should be authorised or deauthorised
+     */
+    function changeForceTransferAuthorised(address _forcer, bool _valid) public onlyOwner {
+        forceTransferAuthorised[_forcer] = _valid;
+        emit LogChangeForceTransferAuthorised(_forcer, _valid);
+    }
+
+    /**
+     * @notice Issuer can disable forced transfers (NB - this can't be subsequently reenabled)
+     */
+    function disableForceTransfer() public onlyOwner {
+        require(!forceTransferDisabled);
+        forceTransferDisabled = true;
     }
 
     /**
@@ -262,10 +293,10 @@ contract SecurityToken is ISecurityToken {
     /**
     * @notice allows the owner to withdraw unspent POLY stored by them on the ST.
     * @dev Owner can transfer POLY to the ST which will be used to pay for modules that require a POLY fee.
-    * @param _amount amount of POLY to withdraw
+    * @param _value amount of POLY to withdraw
     */
-    function withdrawPoly(uint256 _amount) public onlyOwner {
-        require(ERC20(IRegistry(securityTokenRegistry).getAddress("PolyToken")).transfer(owner, _amount), "In-sufficient balance");
+    function withdrawPoly(uint256 _value) public onlyOwner {
+        require(ERC20(IRegistry(securityTokenRegistry).getAddress("PolyToken")).transfer(owner, _value), "In-sufficient balance");
     }
 
     /**
@@ -453,10 +484,10 @@ contract SecurityToken is ISecurityToken {
      * @dev TransferManager module has a key of 2
      * @param _from sender of transfer
      * @param _to receiver of transfer
-     * @param _amount value of transfer
+     * @param _value value of transfer
      * @return bool
      */
-    function verifyTransfer(address _from, address _to, uint256 _amount) public checkGranularity(_amount) returns (bool) {
+    function verifyTransfer(address _from, address _to, uint256 _value) public checkGranularity(_value) returns (bool) {
         if (!freeze) {
             bool isTransfer = false;
             if (transferFunctions[getSig(msg.data)]) {
@@ -469,7 +500,7 @@ contract SecurityToken is ISecurityToken {
             bool isValid = false;
             bool isForceValid = false;
             for (uint8 i = 0; i < modules[TRANSFERMANAGER_KEY].length; i++) {
-                ITransferManager.Result valid = ITransferManager(modules[TRANSFERMANAGER_KEY][i].moduleAddress).verifyTransfer(_from, _to, _amount, isTransfer);
+                ITransferManager.Result valid = ITransferManager(modules[TRANSFERMANAGER_KEY][i].moduleAddress).verifyTransfer(_from, _to, _value, isTransfer);
                 if (valid == ITransferManager.Result.INVALID) {
                     isInvalid = true;
                 }
@@ -481,8 +512,8 @@ contract SecurityToken is ISecurityToken {
                 }
             }
             return isForceValid ? true : (isInvalid ? false : isValid);
-      }
-      return false;
+        }
+        return false;
     }
 
     /**
@@ -505,18 +536,18 @@ contract SecurityToken is ISecurityToken {
      * @notice mints new tokens and assigns them to the target _investor.
      * @dev Can only be called by the STO attached to the token (Or by the ST owner if there's no STO attached yet)
      * @param _investor Address to whom the minted tokens will be dilivered
-     * @param _amount Number of tokens get minted
+     * @param _value Number of tokens get minted
      * @return success
      */
-    function mint(address _investor, uint256 _amount) public onlyModule(STO_KEY, true) checkGranularity(_amount) isMintingAllowed() returns (bool success) {
-        adjustInvestorCount(address(0), _investor, _amount);
-        require(verifyTransfer(address(0), _investor, _amount), "Transfer is not valid");
+    function mint(address _investor, uint256 _value) public onlyModule(STO_KEY, true) checkGranularity(_value) isMintingAllowed() returns (bool success) {
+        adjustInvestorCount(address(0), _investor, _value);
+        require(verifyTransfer(address(0), _investor, _value), "Transfer is not valid");
         adjustBalanceCheckpoints(_investor);
         adjustTotalSupplyCheckpoints();
-        totalSupply_ = totalSupply_.add(_amount);
-        balances[_investor] = balances[_investor].add(_amount);
-        emit Minted(_investor, _amount);
-        emit Transfer(address(0), _investor, _amount);
+        totalSupply_ = totalSupply_.add(_value);
+        balances[_investor] = balances[_investor].add(_value);
+        emit Minted(_investor, _value);
+        emit Transfer(address(0), _investor, _value);
         return true;
     }
 
@@ -524,13 +555,13 @@ contract SecurityToken is ISecurityToken {
      * @notice mints new tokens and assigns them to the target _investor.
      * Can only be called by the STO attached to the token (Or by the ST owner if there's no STO attached yet)
      * @param _investors A list of addresses to whom the minted tokens will be dilivered
-     * @param _amounts A list of number of tokens get minted and transfer to corresponding address of the investor from _investor[] list
+     * @param _values A list of number of tokens get minted and transfer to corresponding address of the investor from _investor[] list
      * @return success
      */
-    function mintMulti(address[] _investors, uint256[] _amounts) public onlyModule(STO_KEY, true) returns (bool success) {
-        require(_investors.length == _amounts.length, "Mis-match in the length of the arrays");
+    function mintMulti(address[] _investors, uint256[] _values) public onlyModule(STO_KEY, true) returns (bool success) {
+        require(_investors.length == _values.length, "Mis-match in the length of the arrays");
         for (uint256 i = 0; i < _investors.length; i++) {
-            mint(_investors[i], _amounts[i]);
+            mint(_investors[i], _values[i]);
         }
         return true;
     }
@@ -676,6 +707,27 @@ contract SecurityToken is ISecurityToken {
      */
     function balanceOfAt(address _investor, uint256 _checkpointId) public view returns(uint256) {
         return getValueAt(checkpointBalances[_investor], _checkpointId, balanceOf(_investor));
+    }
+
+    /**
+     * @notice Force transfers tokens between addresses
+     * @notice if forceTransferDisabled is true, this should fail
+     * @param _from address The address which you want to send tokens from
+     * @param _to address The address which you want to transfer to
+     * @param _value uint256 the amount of tokens to be transferred
+     */
+    function forceTransfer(address _from, address _to, uint256 _value) public isForceTransferAuthorised returns (bool success) {
+        require(!forceTransferDisabled);
+        adjustInvestorCount(_from, _to, _value);
+        require(verifyTransfer(_from, _to, _value), "Transfer is not valid");
+        adjustBalanceCheckpoints(_from);
+        adjustBalanceCheckpoints(_to);
+        require(_value <= balances[_from]);
+        balances[_from] = balances[_from].sub(_value);
+        balances[_to] = balances[_to].add(_value);
+        emit Transfer(_from, _to, _value);
+        emit ForceTransfer(_from, _to, _value, msg.sender);
+        return true;
     }
 
 }
