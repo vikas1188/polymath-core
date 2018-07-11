@@ -1,0 +1,14 @@
+# Putting all the configuration values related to the POLYUSD Oracle
+
+
+properties:
+  ropsten:
+    contract-name: PolyOracle
+    contract-address: "0xec1819a8e4f36d2f4e4bf24165d8aa363588ebd7"
+    threshold-time: 
+  mainnet:
+    contract-name:
+    contract-address:
+    threshold-time:
+
+choosen-net: ropsten
