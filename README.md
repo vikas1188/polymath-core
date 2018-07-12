@@ -174,6 +174,15 @@ $ npm install -g truffle
 # Install local node dependencies:
 $ npm install
 ```
+Package version requirements for your machine:
+
+Homebrew v1.6.7
+node v9.11.1
+npm v5.6.0
+yarn v1.7.0
+Truffle v4.1.11 (core: 4.1.11)
+Solidity v0.4.24 (solc-js)
+Ganache CLI v6.1.3 (ganache-core: 2.1.2)
 
 ## Testing
 
