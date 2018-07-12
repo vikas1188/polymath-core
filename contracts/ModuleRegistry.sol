@@ -4,13 +4,14 @@ import "./interfaces/IModuleRegistry.sol";
 import "./interfaces/IModuleFactory.sol";
 import "./interfaces/ISecurityToken.sol";
 import "./interfaces/ISecurityTokenRegistry.sol";
-import "./Registry.sol";
+import "./Pausable.sol";
+import "./RegistryUpdater.sol";
 
 /**
 * @title Registry contract to store registered modules
 * @notice Anyone can register modules, but only those "approved" by Polymath will be available for issuers to add
 */
-contract ModuleRegistry is IModuleRegistry, Registry {
+contract ModuleRegistry is IModuleRegistry, Pausable, RegistryUpdater {
 
     // Mapping used to hold the type of module factory corresponds to the address of the Module factory contract
     mapping (address => uint8) public registry;
@@ -36,7 +37,7 @@ contract ModuleRegistry is IModuleRegistry, Registry {
     */
     function useModule(address _moduleFactory) external {
         //If caller is a registered security token, then register module usage
-        if (ISecurityTokenRegistry(getAddress("SecurityTokenRegistry")).isSecurityToken(msg.sender)) {
+        if (ISecurityTokenRegistry(securityTokenRegistry).isSecurityToken(msg.sender)) {
             require(registry[_moduleFactory] != 0, "ModuleFactory type should not be 0");
             //To use a module, either it must be verified, or owned by the ST owner
             require(verified[_moduleFactory]||(IModuleFactory(_moduleFactory).owner() == ISecurityToken(msg.sender).owner()),
@@ -91,25 +92,39 @@ contract ModuleRegistry is IModuleRegistry, Registry {
      * @param _moduleType Type of module.
      * @param _tag List of tags
      */
-     function addTagByModuleType(uint8 _moduleType, bytes32[] _tag) public onlyOwner {
-         for (uint8 i = 0; i < _tag.length; i++) {
-             availableTags[_moduleType].push(_tag[i]);
-         }
-     }
+    function addTagByModuleType(uint8 _moduleType, bytes32[] _tag) public onlyOwner {
+        for (uint8 i = 0; i < _tag.length; i++) {
+            availableTags[_moduleType].push(_tag[i]);
+        }
+    }
 
     /**
      * @notice remove the tag for specified Module Factory
      * @param _moduleType Type of module.
      * @param _removedTags List of tags
      */
-     function removeTagByModuleType(uint8 _moduleType, bytes32[] _removedTags) public onlyOwner {
-         for (uint8 i = 0; i < availableTags[_moduleType].length; i++) {
+    function removeTagByModuleType(uint8 _moduleType, bytes32[] _removedTags) public onlyOwner {
+        for (uint8 i = 0; i < availableTags[_moduleType].length; i++) {
             for (uint8 j = 0; j < _removedTags.length; j++) {
                 if (availableTags[_moduleType][i] == _removedTags[j]) {
                     delete availableTags[_moduleType][i];
                 }
             }
         }
-     }
+    }
+
+    /**
+     * @notice pause registration function
+     */
+    function unpause() public onlyOwner  {
+        _unpause();
+    }
+
+    /**
+     * @notice unpause registration function
+     */
+    function pause() public onlyOwner {
+        _pause();
+    }
 
 }

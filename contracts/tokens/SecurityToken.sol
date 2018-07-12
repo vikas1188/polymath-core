@@ -9,8 +9,8 @@ import "../interfaces/IModuleRegistry.sol";
 import "../interfaces/IST20.sol";
 import "../modules/TransferManager/ITransferManager.sol";
 import "../modules/PermissionManager/IPermissionManager.sol";
-import "../interfaces/IRegistry.sol";
 import "../interfaces/ITokenBurner.sol";
+import "../RegistryUpdater.sol";
 
 /**
 * @title Security Token contract
@@ -20,7 +20,7 @@ import "../interfaces/ITokenBurner.sol";
 * @notice - Modules can be attached to it to control its behaviour
 * @notice - ST should not be deployed directly, but rather the SecurityTokenRegistry should be used
 */
-contract SecurityToken is ISecurityToken {
+contract SecurityToken is ISecurityToken, RegistryUpdater {
     using SafeMath for uint256;
 
     bytes32 public securityTokenVersion = "0.0.1";
@@ -30,9 +30,6 @@ contract SecurityToken is ISecurityToken {
 
     // Use to halt all the transactions
     bool public freeze = false;
-
-    // Reference to STR contract
-    address public securityTokenRegistry;
 
     struct ModuleData {
         bytes32 name;
@@ -90,8 +87,8 @@ contract SecurityToken is ISecurityToken {
     // Change the STR address in the event of a upgrade
     event LogChangeSTRAddress(address indexed _oldAddress, address indexed _newAddress);
 
-    // If _fallback is true, then for STO module type we only allow the module if it is set, if it is not set we only allow the owner 
-    // for other _moduleType we allow both issuer and module. 
+    // If _fallback is true, then for STO module type we only allow the module if it is set, if it is not set we only allow the owner
+    // for other _moduleType we allow both issuer and module.
     modifier onlyModule(uint8 _moduleType, bool _fallback) {
       //Loop over all modules of type _moduleType
         bool isModuleType = false;
@@ -132,7 +129,7 @@ contract SecurityToken is ISecurityToken {
      * @param _decimals Decimals for the securityToken
      * @param _granularity granular level of the token
      * @param _tokenDetails Details of the token that are stored off-chain (IPFS hash)
-     * @param _securityTokenRegistry Contract address of the security token registry
+     * @param _polymathRegistry Contract address of the polymath registry
      */
     constructor (
         string _name,
@@ -140,13 +137,14 @@ contract SecurityToken is ISecurityToken {
         uint8 _decimals,
         uint256 _granularity,
         string _tokenDetails,
-        address _securityTokenRegistry
+        address _polymathRegistry
     )
     public
     DetailedERC20(_name, _symbol, _decimals)
     {
         //When it is created, the owner is the STR
-        securityTokenRegistry = _securityTokenRegistry;
+        polymathRegistry = _polymathRegistry;
+        updateFromRegistry();
         tokenDetails = _tokenDetails;
         granularity = _granularity;
         transferFunctions[bytes4(keccak256("transfer(address,uint256)"))] = true;
@@ -184,17 +182,17 @@ contract SecurityToken is ISecurityToken {
     */
     function _addModule(address _moduleFactory, bytes _data, uint256 _maxCost, uint256 _budget) internal {
         //Check that module exists in registry - will throw otherwise
-        IModuleRegistry(IRegistry(securityTokenRegistry).getAddress("ModuleRegistry")).useModule(_moduleFactory);
+        IModuleRegistry(moduleRegistry).useModule(_moduleFactory);
         IModuleFactory moduleFactory = IModuleFactory(_moduleFactory);
         require(modules[moduleFactory.getType()].length < MAX_MODULES, "Limit of MAX MODULES is reached");
         uint256 moduleCost = moduleFactory.setupCost();
         require(moduleCost <= _maxCost, "Max Cost is always be greater than module cost");
         //Approve fee for module
-        require(ERC20(IRegistry(securityTokenRegistry).getAddress("PolyToken")).approve(_moduleFactory, moduleCost), "Not able to approve the module cost");
+        require(ERC20(polyToken).approve(_moduleFactory, moduleCost), "Not able to approve the module cost");
         //Creates instance of module from factory
         address module = moduleFactory.deploy(_data);
         //Approve ongoing budget
-        require(ERC20(IRegistry(securityTokenRegistry).getAddress("PolyToken")).approve(module, _budget), "Not able to approve the budget");
+        require(ERC20(polyToken).approve(module, _budget), "Not able to approve the budget");
         //Add to SecurityToken module map
         modules[moduleFactory.getType()].push(ModuleData(moduleFactory.getName(), module));
         //Emit log event
@@ -265,7 +263,7 @@ contract SecurityToken is ISecurityToken {
     * @param _amount amount of POLY to withdraw
     */
     function withdrawPoly(uint256 _amount) public onlyOwner {
-        require(ERC20(IRegistry(securityTokenRegistry).getAddress("PolyToken")).transfer(owner, _amount), "In-sufficient balance");
+        require(ERC20(polyToken).transfer(owner, _amount), "In-sufficient balance");
     }
 
     /**
@@ -277,7 +275,7 @@ contract SecurityToken is ISecurityToken {
     function changeModuleBudget(uint8 _moduleType, uint8 _moduleIndex, uint256 _budget) public onlyOwner {
         require(_moduleType != 0, "Module type cannot be zero");
         require(_moduleIndex < modules[_moduleType].length, "Incorrrect module index");
-        require(ERC20(IRegistry(securityTokenRegistry).getAddress("PolyToken")).approve(modules[_moduleType][_moduleIndex].moduleAddress, _budget), "Insufficient balance to approve");
+        require(ERC20(polyToken).approve(modules[_moduleType][_moduleIndex].moduleAddress, _budget), "Insufficient balance to approve");
         emit LogModuleBudgetChanged(_moduleType, modules[_moduleType][_moduleIndex].moduleAddress, _budget);
     }
 
@@ -596,16 +594,6 @@ contract SecurityToken is ISecurityToken {
             sig = bytes4(uint(sig) + uint(_data[i]) * (2 ** (8 * (len - 1 - i))));
         }
     }
-
-    /**
-     * @notice set a new Security Token Registry contract address in case of upgrade
-     * @param _newAddress is address of new contract
-     */
-     function changeSecurityTokenRegistryAddress(address _newAddress) public onlyOwner {
-         require(_newAddress != securityTokenRegistry && _newAddress != address(0));
-         emit LogChangeSTRAddress(securityTokenRegistry, _newAddress);
-         securityTokenRegistry = _newAddress;
-     }
 
     /**
      * @notice Creates a checkpoint that can be used to query historical balances / totalSuppy
