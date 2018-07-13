@@ -475,7 +475,7 @@ contract('ModuleRegistry', accounts => {
             let bytesSTO = web3.eth.abi.encodeFunctionCall(functionSignature, [startTime, endTime, cap, rate, fundRaiseType, account_fundsReceiver]);
             let errorThrown = false;
             try {
-                const tx = await I_SecurityToken.addModule(I_CappedSTOFactory.address, bytesSTO, 0, 0, true, { from: token_owner, gas: 60000000 });
+                const tx = await I_SecurityToken.addModule(I_CappedSTOFactory.address, bytesSTO, 0, 0, { from: token_owner, gas: 60000000 });
             } catch(error) {
                 errorThrown = true;
                 console.log(`         tx revert -> Module is un-verified`.grey);
@@ -507,7 +507,7 @@ contract('ModuleRegistry', accounts => {
             endTime = startTime + duration.days(30);
             let bytesSTO = web3.eth.abi.encodeFunctionCall(functionSignature, [startTime, endTime, cap, rate, fundRaiseType, account_fundsReceiver]);
 
-            tx = await I_SecurityToken.addModule(I_CappedSTOFactory.address, bytesSTO, 0, 0, true, { from: token_owner, gas: 60000000 });
+            tx = await I_SecurityToken.addModule(I_CappedSTOFactory.address, bytesSTO, 0, 0, { from: token_owner, gas: 60000000 });
 
             assert.equal(tx.logs[2].args._type, stoKey, "CappedSTO doesn't get deployed");
             assert.equal(
@@ -525,11 +525,11 @@ contract('ModuleRegistry', accounts => {
         describe("Test cases for reclaiming funds", async() => {
 
             it("Should successfully reclaim POLY tokens", async() => {
-                I_PolyToken.transfer(I_ModuleRegistry.address, 1 * Math.pow(10, 18), { from: token_owner });
+                I_PolyToken.transfer(I_ModuleRegistry.address, web3.utils.toWei("1"), { from: token_owner });
                 let bal1 = await I_PolyToken.balanceOf.call(account_polymath);
                 await I_ModuleRegistry.reclaimERC20(I_PolyToken.address);
                 let bal2 = await I_PolyToken.balanceOf.call(account_polymath);
-                assert.isAbove(bal2, bal1);
+                assert.isAtLeast(bal2.dividedBy(new BigNumber(10).pow(18)).toNumber(), bal2.dividedBy(new BigNumber(10).pow(18)).toNumber());
             });
 
         });

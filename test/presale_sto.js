@@ -256,7 +256,7 @@ contract('PreSaleSTO', accounts => {
             let bytesSTO = web3.eth.abi.encodeFunctionCall(functionSignature, [0]);
             let errorThrown = false;
             try {
-                const tx = await I_SecurityToken.addModule(I_PreSaleSTOFactory.address, bytesSTO, 0, 0, true, { from: token_owner, gas: 26000000 });
+                const tx = await I_SecurityToken.addModule(I_PreSaleSTOFactory.address, bytesSTO, 0, 0, { from: token_owner, gas: 26000000 });
             } catch(error) {
                 console.log(`         tx revert -> Rate is ${0}. Test Passed Successfully`.grey);
                 errorThrown = true;
@@ -269,7 +269,7 @@ contract('PreSaleSTO', accounts => {
             endTime = latestTime() + duration.days(30);           // Start time will be 5000 seconds more than the latest time
             let bytesSTO = web3.eth.abi.encodeFunctionCall(functionSignature, [endTime]);
 
-            const tx = await I_SecurityToken.addModule(I_PreSaleSTOFactory.address, bytesSTO, 0, 0, true, { from: token_owner, gas: 26000000 });
+            const tx = await I_SecurityToken.addModule(I_PreSaleSTOFactory.address, bytesSTO, 0, 0, { from: token_owner, gas: 26000000 });
 
             assert.equal(tx.logs[2].args._type, stoKey, "PreSaleSTO doesn't get deployed");
             assert.equal(
@@ -417,6 +417,39 @@ contract('PreSaleSTO', accounts => {
             assert.ok(errorThrown, message);
         });
 
+    });
+
+    describe("Reclaim poly sent to STO by mistake", async() => {
+
+        it("Should fail to reclaim POLY because token contract address is 0 address", async() => {
+            let value = web3.utils.toWei('100','ether');
+            await I_PolyToken.getTokens(value, account_investor1);
+            await I_PolyToken.transfer(I_PreSaleSTO.address, value, { from: account_investor1 });
+
+            let errorThrown = false;
+            try {
+                 await I_PreSaleSTO.reclaimERC20('0x0000000000000000000000000000000000000000', { from: token_owner });
+            } catch(error) {
+                console.log(`         tx revert -> token contract address is 0 address`.grey);
+                ensureException(error);
+                errorThrown = true;
+            }
+            assert.ok(errorThrown, message);
+        });
+
+        it("Should successfully reclaim POLY", async() => {
+            let initInvestorBalance = await I_PolyToken.balanceOf(account_investor1);
+            let initOwnerBalance = await I_PolyToken.balanceOf(token_owner);
+            let initContractBalance = await I_PolyToken.balanceOf(I_PreSaleSTO.address);
+            let value = web3.utils.toWei('100','ether');
+
+            await I_PolyToken.getTokens(value, account_investor1);
+            await I_PolyToken.transfer(I_PreSaleSTO.address, value, { from: account_investor1 });
+            await I_PreSaleSTO.reclaimERC20(I_PolyToken.address, { from: token_owner });
+            assert.equal((await I_PolyToken.balanceOf(account_investor3)).toNumber(), initInvestorBalance.toNumber(), "tokens are not transfered out from investor account");
+            assert.equal((await I_PolyToken.balanceOf(token_owner)).toNumber(), initOwnerBalance.add(value).add(initContractBalance).toNumber(), "tokens are not added to the owner account");
+            assert.equal((await I_PolyToken.balanceOf(I_PreSaleSTO.address)).toNumber(), 0, "tokens are not trandfered out from STO contract");
+        });
     });
 
     describe("Test cases for the PresaleSTOFactory", async() => {

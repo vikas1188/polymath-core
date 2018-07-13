@@ -61,8 +61,7 @@ Modules allow custom add-in functionality in the issuance process and beyond. Th
 
 # Using the CLI Tool
 
-The CLI (Command Line Interface) tools allow you to step through the issuance of a ST-20 security token and other important actions on the polymath-core platform.
-First, assure you have [setup Polymath Core properly](#setup).
+The Polymath CLI (Command Line Interface) commands are operated from a *nix command prompt (unix or mac).
 
 To use it, make sure you are connected to a full ethereum node (or locally to `ganache-cli`, a local private test network).
 You can run Parity with the following command to get started (make sure the node is fully synced before using the CLI tool):
@@ -71,69 +70,87 @@ You can run Parity with the following command to get started (make sure the node
 parity --chain ropsten  --rpcapi "eth,net,web3,personal,parity" --unlock YOUR_ETH_ACCOUNT --password $HOME/password.file
 ```
 
-## Launching a Security Token and STO
+## Poly Faucet
+
+If you are working on a local private network, you should run the faucet command to get Poly necessary to pay fees for the other commands.
+
+```bash
+node CLI/polymath-cli faucet
+```
+
+## Generating ST-20 token
+
+The ST-20 Generator command is a wizard-like script that will guide technical users in the creation and deployment of an ST-20 token.
+
+1. Edit `CLI/commands/helpers/contract_addresses.js` to make sure scripts are pointing to the correct contract addresses
+2. On the terminal, run the following command:
+```bash
+node CLI/polymath-cli st20generator
+```
+3. Follow the text prompts:
+    * You will be asked for a token symbol. Enter a new symbol to register or a symbol you have already registered.
+    * Enter a token name (long name seen by investors) to complete the token registration process. The token will be deployed to the blockchain.
+    * (Optional) If you want to issue tokens to an address you own enter the address and then how many tokens you want to issue. If you want to issue tokens to a list of affiliates press `Y` and it will update a whitelist with them and then tokens will be issued.
+    Make sure the `whitelist_data.csv` and `multi_mint_data.csv` files are present in the data folder and fulfilled with the right information.    
+    * Configure the Capped STO. Enter start and end times, the issuance cap, and exchange rate.
+4. Once the process is finished, you can run the `node CLI/polymath-cli st20generator` command again and enter the token symbol to see the STO's live-progress.
 
 1. Edit `demo/helpers/contract_addresses.js` to make sure scripts are pointing to the correct contract addresses.
 2. On the terminal, run the following command and follow the prompts.
 3. Once the process is finished, you can run the command again and enter the token symbol to see the STO's status.
 
+After starting the STO you can run a command to mass-update a whitelist of allowed/known investors.
+Make sure the `whitelist_data.csv` file is present in the data folder.
+The command takes 2 parameters:
+- The token symbol for the STO you want to invest in
+- (Optional) The size of each batch
+
 ```bash
-node demo/st20generator
+node CLI/polymath-cli whitelist TOKEN_SYMBOL [BATCH_SIZE]
 ```
 
-## Whitelisting Investors
+## Initial minting
 
-After starting the STO you can add a list of addresses to the whitelist as allowed investors.
-Update the `whitelist_data.csv` file with the list of approved addresses.
+Before starting the STO you can run a command to distribute tokens to previously whitelisted investors.
+Make sure the `multi_mint_data` file is present in the data folder.
+The command takes 2 parameters:
+- The token symbol for the STO you want to invest in
+- (Optional) The size of each batch
 
 ```bash
-node demo/whitelist TOKEN_SYMBOL
+node CLI/polymath-cli multi_mint TOKEN_SYMBOL [BATCH_SIZE]
 ```
 
 ## Investing an STO
 
-You can run the investor portal script to participate in any STO you have been whitelisted for.
+You can run the invest command to participate in any STO you have been whitelisted for.
+The script takes 3 parameters:
+- The token symbol for the STO you want to invest in
+- The account that will receive the tokens
+- How much ETH to send
 
 ```bash
-node demo/investor_portal
+node CLI/polymath-cli invest TOKEN_SYMBOL BENEFICIARY ETHER
 ```
 
-## Transferring Tokens
+## Transferring tokens
 
-You can run the transfer script to transfer ST tokens to another account (as long as both are whitelisted and have been cleared of any lockup periods).
-
-The script takes 3 parameters:
+You can run the transfer command to transfer ST tokens to another account (as long as both are whitelisted and have been cleared of any lockup periods).
 - The token symbol of the ST you want to transfer
 - The account that will receive the tokens
 - How many tokens to send
 
 ```bash
-node demo/transfer TOKEN_SYMBOL ACCOUNT_TO AMOUNT
+node CLI/polymath-cli transfer TOKEN_SYMBOL ACCOUNT_TO AMOUNT
 ```
 
-## Managing Modules
+## Managing modules
 
-Using the module management script, you can see the status of the modules attached to the security token you issued and perform a set of actions.
-
-Here are the actions:
-1. Add a module
-2. Pause and unpause a module
-3. Remove a module
-4. Change a module budget
-5. Mint tokens
-6. Permanently end minting
+You can run the module manager command to view all the modules attached to a token and their status.
+You will be asked for a token symbol.
 
 ```bash
-node demo/module_manager
-```
-
-## Using Checkpoints
-
-This script allows you to create and explore checkpoints using a ETH or ERC20 checkpoint module.
-
-```bash
-node demo/checkpoint/ethExplorer
-node demo/checkpoint/erc20Explorer
+node CLI/polymath-cli module_manager
 ```
 
 # Setting up Polymath Core
@@ -150,6 +167,16 @@ CappedSTOFactory: | [0xb7ded4e2da6324cac7f46fba242e1988101f40d2](https://kovan.e
 EthDividendsCheckpointFactory: | [0x8e895bea58e7a639e58d6c196acad81f173903e5](https://kovan.etherscan.io/address/0x8e895bea58e7a639e58d6c196acad81f173903e5)
 TORO V1.2.0 Token: | [0x2573D0946810da2C95B3A63cB4c8cc3aF0E95723](https://kovan.etherscan.io/address/0x2573D0946810da2C95B3A63cB4c8cc3aF0E95723)
 TORO V1.2.0 CappedSTO: | [0xCB1F57bf24b32466116eD5f359595a5BEba7A166](https://kovan.etherscan.io/address/0xCB1F57bf24b32466116eD5f359595a5BEba7A166)
+
+## Package version requirements for your machine:
+
+- Homebrew v1.6.7
+- node v9.11.1
+- npm v5.6.0
+- yarn v1.7.0
+- Truffle v4.1.11 (core: 4.1.11)
+- Solidity v0.4.24 (solc-js)
+- Ganache CLI v6.1.3 (ganache-core: 2.1.2)
 
 ## Setup
 

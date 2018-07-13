@@ -1,6 +1,7 @@
 // Libraries for terminal prompts
 var readlineSync = require('readline-sync');
 var chalk = require('chalk');
+var common = require('./common/common_functions');
 
 // Generate web3 instance
 const Web3 = require('web3');
@@ -10,6 +11,8 @@ if (typeof web3 !== 'undefined') {
   // set the provider you want from Web3.providers
   web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 }
+
+let DEFAULT_GAS_PRICE = 80000000000;
 
 // Load Contract artifacts
 var contracts = require("./helpers/contract_addresses");
@@ -39,7 +42,7 @@ try {
   return;
 }
 
-// Init user variables
+// Init user address variables
 let Issuer;
 let User;
 
@@ -60,51 +63,22 @@ let displayRaiseType;
 let displayTokenSymbol;
 
 // Start Script
-(async () => {
+async function executeApp() {
     // Init user accounts
-    let accounts = await web3.eth.getAccounts();
-    Issuer = accounts[0];
-
-    welcome();
-})().catch(err => {
-    console.error(err);
-});
+    try {
+        let accounts = await web3.eth.getAccounts();
+        Issuer = accounts[0];
+    
+        welcome();
+    }
+    catch(err) {
+        console.error(err);
+    }
+};
 
 // Welcome Message
 async function welcome() {
-    console.log(chalk.white(`
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@(@(&&@@@@@@@@@@@@@@@@@@@@@@@@@@(((@&&&&(/@@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@(#(((((((#%%%#@@@@@@@@@@@@@@@@@@@@%##(((/@@@@@@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@(%(((((((((((#%%%%%@#@@@@@@@@@@@@(&#####@@@@@@@@%&
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&#((((((((((((((##%%%%%%%&&&%%##@%#####%(@@@@@@@#%#&
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@(%((((((((((((((((((###%%%%%((#####%%%####@@@@@@@###((@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@(#(((((((((((((((((((((####%%%#((((######%&%@@(##&###(@@@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@(#((((((((((((((((((((((((####%%#(((((((#((((((((((((#(@@@@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@(%(((((((((((((((((((((((((((######%(((((((((((((#&(/@@@@@@@@@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&#(((((((((((((((((((((((((((((((###############(##%%#@@@@@@@@@@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@(#((((##############(((((((((((((((((###################%@@@@@@@@@@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@(&#((#(##################((((((((((((((((((##%%##############@@@@@@@@@@@
-@@@@@@@@@@@@@@@@@@@@@/%#(((((((##%((((##############((((((((((((((((((##%%#############%%@@@@@@@@@@
-@@@@@@@@@@@@@@@@@@@@((((((((((###%%((((((##########(((((((((((((((((((#%%%############%%%#@@@@@@@@@
-@@@@@@@@@@@@@@@@@@%((((((((((####%%%((((((((#######(((((((((((####(((((@%%############%%%#@@@@@@@@@
-@@@@@@@@@####%%%%%#(((((((((#####%%%%(((((((((((###((((#######(((((((((&@@(&#########%%%%&@@@@@@@@@
-@@@@@@@@&(((#####%###(((((((#####%%%%%((((((((####%%%%%%%%&%@%#((((((((@@@@@@(#(####%%%%%%@@@@@@@@@
-@@@@@@@&(((@@@@@@@####(((((######%%%%%%##&########%%%%%#@@@@###(((((#(@@@@@@@@@@@###%%#@@@@@@@@@@@@
-@@@#%&%(((@@@@@@@@#####(((#######%%%%@@@@@@@@@@@((##@@@@@@@@%###((((/@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@@#%%&%#@@@@@@@@@@############%%%%@@@@@@@@@@@@@@@@@@@@(@&&&&#####(#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@@@@@@@@@@@@@@@@@#%%%%%#((%%%%%%#@@@@@@@@@@@@@@@@@@@@(####%((((%#(@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@@@@@@@@@@@@@@@@@&%%%#((((((%%&@@@@@@@@@@@@@@@@@@@@@@###%%#((@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@@@@@@@@@@@@@@@@%%%%((((((((& @@@@@@@@@@@@@@@@@@@@@@@%%&%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@@@@@@@@@@@@@@@@%%(((((&#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@@@@@@@@@@@@@@@&((###@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@@@@@@@@@@@@@@@#####@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@@@@@@@@@@@@@@&####@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@@@@@@@@@@@@@&&%##@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@@@@@@@@@@@@@&&&%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@@@@@@@@@@@@@%##%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@@@@@@@@@@#%####%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    `));
-
+    common.logAsciiBull();
     console.log("********************************************");
     console.log("Welcome to the Command-Line Investor Portal.");
     console.log("********************************************");
@@ -123,7 +97,7 @@ async function welcome() {
     User = readlineSync.question(chalk.yellow(`\nEnter your public address to log in as an investor. Otherwise, press 'Enter' to log in as the token issuer: `));
     if (User == "") User = Issuer;
 
-    await showUserInfo();
+    await showUserInfo(User);
 
     while (!validSymbol) {
         await inputSymbol();
@@ -159,17 +133,6 @@ async function inputSymbol() {
         await showTokenInfo()
         return;
     }
-}
-
-// Display user information
-async function showUserInfo() {
-    // User details
-    console.log(`
-        *******************    User Information    ********************
-        - Address:           ${User}
-        - POLY balance:      ${await polyBalance(User)}
-        - ETH balance:       ${web3.utils.fromWei(await web3.eth.getBalance(User))}
-    `);
 }
 
 // Display token and STO information
@@ -221,7 +184,7 @@ async function showTokenInfo() {
           timeRemaining = displayEndTime - now;
         }
 
-        timeRemaining = convertToDaysRemaining(timeRemaining);
+        timeRemaining = common.convertToDaysRemaining(timeRemaining);
 
         console.log(`
         ********************    STO Information    ********************
@@ -272,12 +235,16 @@ async function invest() {
             if (parseInt(userBalance) >= parseInt(cost)) {
                 let allowance = await polyToken.methods.allowance(STOAddress, User).call({from: User});
                 if (allowance < costWei) {
-                    await polyToken.methods.approve(STOAddress, costWei).send({from: User, gas:2000000, gasPrice: 80000000000 })
+                    let approveAction = polyToken.methods.approve(STOAddress, costWei);
+                    let GAS = await common.estimateGas(approveAction, User, 1.2);
+                    await approveAction.send({from: User, gas: GAS, gasPrice: DEFAULT_GAS_PRICE })
                     .on('receipt', function(receipt) {
                     })
                     .on('error', console.error);
                 }
-                await cappedSTO.methods.buyTokensWithPoly(costWei).send({from: User, gas:2000000, gasPrice: 80000000000 })
+                let actionBuyTokensWithPoly = cappedSTO.methods.buyTokensWithPoly(costWei);
+                let GAS = await common.estimateGas(actionBuyTokensWithPoly, User, 1.2);
+                await actionBuyTokensWithPoly.send({from: User, gas: GAS, gasPrice: DEFAULT_GAS_PRICE })
                 .on('transactionHash', function(hash){
                     console.log(`
         Your transaction is being processed. Please wait...
@@ -309,7 +276,9 @@ async function invest() {
             return;
         }
     } else {
-        await cappedSTO.methods.buyTokens(User).send({ from: User, value:web3.utils.toWei(cost.toString()), gas:2500000, gasPrice:80000000000})
+        let actionBuyTokens = cappedSTO.methods.buyTokens(User);
+        let GAS = await common.estimateGas(actionBuyTokens, User, 1.2, web3.utils.toWei(cost.toString()));
+        await actionBuyTokens.send({ from: User, value:web3.utils.toWei(cost.toString()), gas: GAS, gasPrice:DEFAULT_GAS_PRICE})
         .on('transactionHash', function(hash){
             console.log(`
         Your transaction is being processed. Please wait...
@@ -336,18 +305,22 @@ async function invest() {
 }
 
 // Helpers
+async function showUserInfo(_user) {
+    console.log(`
+        *******************    User Information    ********************
+        - Address:           ${_user}
+        - POLY balance:      ${await polyBalance(_user)}
+        - ETH balance:       ${web3.utils.fromWei(await web3.eth.getBalance(_user))}
+    `);
+}
+
 async function polyBalance(_user) {
     let balance = await polyToken.methods.balanceOf(_user).call();
     return web3.utils.fromWei(balance);
 }
 
-function convertToDaysRemaining(timeRemaining){
-    var seconds = parseInt(timeRemaining, 10);
-    var days = Math.floor(seconds / (3600*24));
-    seconds  -= days*3600*24;
-    var hrs   = Math.floor(seconds / 3600);
-    seconds  -= hrs*3600;
-    var mnts = Math.floor(seconds / 60);
-    seconds  -= mnts*60;
-    return (days+" days, "+hrs+" Hrs, "+mnts+" Minutes, "+seconds+" Seconds");
+module.exports = {
+    executeApp: async function() {
+          return executeApp();
+      }
 }
