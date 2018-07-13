@@ -23,17 +23,10 @@ contract SecurityTokenRegistry is ISecurityTokenRegistry, Util, Pausable, Regist
     event LogNewSecurityToken(string _ticker, address indexed _securityTokenAddress, address _owner);
     event LogAddCustomSecurityToken(string _name, string _symbol, address _securityToken, uint256 _addedAt);
 
-    constructor (
-        address _polymathRegistry,
-        address _stVersionProxy,
-        uint256 _registrationFee
-    )
-    public
-    {
+    constructor (address _polymathRegistry, address _stVersionProxy, uint256 _registrationFee) public {
         polymathRegistry = _polymathRegistry;
         updateFromRegistry();
         registrationFee = _registrationFee;
-
         // By default, the STR version is set to 0.0.1
         setProtocolVersion(_stVersionProxy, "0.0.1");
     }
