@@ -11,6 +11,10 @@ contract RegistryUpdater is Ownable {
     address public tickerRegistry;
     address public polyToken;
 
+    constructor (address _polymathRegistry) public {
+        polymathRegistry = _polymathRegistry;
+    }
+
     function updateFromRegistry() onlyOwner public {
         require(polymathRegistry != address(0));
         moduleRegistry = PolymathRegistry(polymathRegistry).getAddress("ModuleRegistry");

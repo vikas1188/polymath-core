@@ -141,9 +141,9 @@ contract SecurityToken is ISecurityToken, RegistryUpdater {
     )
     public
     DetailedERC20(_name, _symbol, _decimals)
+    RegistryUpdater(_polymathRegistry)
     {
         //When it is created, the owner is the STR
-        polymathRegistry = _polymathRegistry;
         updateFromRegistry();
         tokenDetails = _tokenDetails;
         granularity = _granularity;

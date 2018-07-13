@@ -31,6 +31,12 @@ contract ModuleRegistry is IModuleRegistry, Pausable, RegistryUpdater {
     // Emit when the module get verified by the Polymath team
     event LogModuleVerified(address indexed _moduleFactory, bool _verified);
 
+    constructor (address _polymathRegistry) public
+        RegistryUpdater(_polymathRegistry)
+    {
+
+    }
+
     /**
     * @notice Called by a security token to notify the registry it is using a module
     * @param _moduleFactory is the address of the relevant module factory

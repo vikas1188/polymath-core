@@ -41,8 +41,9 @@ contract TickerRegistry is ITickerRegistry, Util, Pausable, RegistryUpdater {
     // Emit when changePolyRegisterationFee is called
     event LogChangePolyRegisterationFee(uint256 _oldFee, uint256 _newFee);
 
-    constructor (address _polymathRegistry, uint256 _registrationFee) public {
-        polymathRegistry = _polymathRegistry;
+    constructor (address _polymathRegistry, uint256 _registrationFee) public
+    RegistryUpdater(_polymathRegistry)
+    {
         updateFromRegistry();
         registrationFee = _registrationFee;
     }
