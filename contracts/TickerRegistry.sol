@@ -6,13 +6,14 @@ import "./interfaces/ITickerRegistry.sol";
 import "./helpers/Util.sol";
 import "./Pausable.sol";
 import "./RegistryUpdater.sol";
+import "./ReclaimTokens.sol";
 
 /**
  * @title Registry contract for issuers to reserve their security token symbols
  * @notice Allows issuers to reserve their token symbols ahead of actually generating their security token.
  * @dev SecurityTokenRegistry would reference this contract and ensure that a token symbol exists here and only its owner can deploy the token with that symbol.
  */
-contract TickerRegistry is ITickerRegistry, Util, Pausable, RegistryUpdater {
+contract TickerRegistry is ITickerRegistry, Util, Pausable, RegistryUpdater, ReclaimTokens {
 
     using SafeMath for uint256;
     // constant variable to check the validity to use the symbol
