@@ -6,12 +6,13 @@ import "./interfaces/ISecurityToken.sol";
 import "./interfaces/ISecurityTokenRegistry.sol";
 import "./Pausable.sol";
 import "./RegistryUpdater.sol";
+import "./ReclaimTokens.sol";
 
 /**
 * @title Registry contract to store registered modules
 * @notice Anyone can register modules, but only those "approved" by Polymath will be available for issuers to add
 */
-contract ModuleRegistry is IModuleRegistry, Pausable, RegistryUpdater {
+contract ModuleRegistry is IModuleRegistry, Pausable, RegistryUpdater, ReclaimTokens {
 
     // Mapping used to hold the type of module factory corresponds to the address of the Module factory contract
     mapping (address => uint8) public registry;
@@ -34,7 +35,7 @@ contract ModuleRegistry is IModuleRegistry, Pausable, RegistryUpdater {
     constructor (address _polymathRegistry) public
         RegistryUpdater(_polymathRegistry)
     {
-
+        updateFromRegistry();
     }
 
     /**

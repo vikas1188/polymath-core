@@ -6,12 +6,13 @@ import "./interfaces/ISTProxy.sol";
 import "./interfaces/ISecurityTokenRegistry.sol";
 import "./Pausable.sol";
 import "./RegistryUpdater.sol";
+import "./ReclaimTokens.sol";
 import "./helpers/Util.sol";
 
 /**
  * @title Registry contract for issuers to register their security tokens
  */
-contract SecurityTokenRegistry is ISecurityTokenRegistry, Util, Pausable, RegistryUpdater {
+contract SecurityTokenRegistry is ISecurityTokenRegistry, Util, Pausable, RegistryUpdater, ReclaimTokens {
 
     // Registration fee in POLY base 18 decimals
     uint256 public registrationFee;

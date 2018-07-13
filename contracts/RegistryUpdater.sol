@@ -18,7 +18,7 @@ contract RegistryUpdater is Ownable {
     function updateFromRegistry() onlyOwner public {
         require(polymathRegistry != address(0));
         moduleRegistry = PolymathRegistry(polymathRegistry).getAddress("ModuleRegistry");
-        securityTokenRegistry = PolymathRegistry(polymathRegistry).getAddress("ModuleRegistry");
+        securityTokenRegistry = PolymathRegistry(polymathRegistry).getAddress("SecurityTokenRegistry");
         tickerRegistry = PolymathRegistry(polymathRegistry).getAddress("TickerRegistry");
         polyToken = PolymathRegistry(polymathRegistry).getAddress("PolyToken");
     }
