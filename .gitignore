@@ -5,4 +5,5 @@
 privKey
 coverage/
 coverage.json
-.vscode/launch.json
+.vscode/
+bridge.log

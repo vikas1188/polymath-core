@@ -6,9 +6,13 @@ properties:
     contract-name: PolyOracle
     contract-address: "0xec1819a8e4f36d2f4e4bf24165d8aa363588ebd7"
     threshold-time: 
+  kovan:
+    contract-name: PolyOracle
+    contract-address: "0xC9b54026C14D7E29d6F3D72AE64049EFb45e390c"
+    threshold-time: 
   mainnet:
     contract-name:
     contract-address:
     threshold-time:
 
-choosen-net: ropsten
+choosen-net: kovan
