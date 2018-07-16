@@ -31,7 +31,6 @@ contract SecurityTokenRegistry is ISecurityTokenRegistry, Util, Pausable, Regist
     public
     RegistryUpdater(_polymathRegistry)
     {
-        updateFromRegistry();
         registrationFee = _registrationFee;
         // By default, the STR version is set to 0.0.1
         setProtocolVersion(_stVersionProxy, "0.0.1");

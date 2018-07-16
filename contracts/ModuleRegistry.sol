@@ -35,7 +35,6 @@ contract ModuleRegistry is IModuleRegistry, Pausable, RegistryUpdater, ReclaimTo
     constructor (address _polymathRegistry) public
         RegistryUpdater(_polymathRegistry)
     {
-        updateFromRegistry();
     }
 
     /**

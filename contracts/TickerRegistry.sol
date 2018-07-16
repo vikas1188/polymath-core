@@ -45,7 +45,6 @@ contract TickerRegistry is ITickerRegistry, Util, Pausable, RegistryUpdater, Rec
     constructor (address _polymathRegistry, uint256 _registrationFee) public
     RegistryUpdater(_polymathRegistry)
     {
-        updateFromRegistry();
         registrationFee = _registrationFee;
     }
 
