@@ -3,16 +3,24 @@
 
 properties:
   ropsten:
-    contract-name: PolyOracle
-    contract-address: "0xec1819a8e4f36d2f4e4bf24165d8aa363588ebd7"
-    threshold-time: 
+    contract_name: PolyOracle
+    contract_address: "0xec1819a8e4f36d2f4e4bf24165d8aa363588ebd7"
+    threshold_time: 3       # In Hours
+  rinkeby:
+    contract_name: PolyOracle
+    contract_address:
+    threshold_time: 3       # In Hours
   kovan:
-    contract-name: PolyOracle
-    contract-address: "0xC9b54026C14D7E29d6F3D72AE64049EFb45e390c"
-    threshold-time: 
+    contract_name: PolyOracle
+    contract_address: "0xC9b54026C14D7E29d6F3D72AE64049EFb45e390c"
+    threshold_time: 3       # In Hours
   mainnet:
-    contract-name:
-    contract-address:
-    threshold-time:
+    contract_name: PolyOracle
+    contract_address:
+    threshold_time: 3       # In Hours
+  ganache:
+    contract_name: MockPolyOracle
+    contract_address: "0xa09f616e2af3dcb208da39548da80985d3bcd562"
+    threshold_time: 0
 
-choosen-net: kovan
+choosen_network: ganache

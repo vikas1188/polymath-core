@@ -25,7 +25,9 @@
     "flatten-mocks": "sol-merger './contracts/mocks/*.sol' ./flat/mocks",
     "flatten": "sol-merger './contracts/*.sol' ./flat",
     "ethereum-bridge": "node_modules/.bin/ethereum-bridge -H localhost:8545 -a 9 --dev",
-    "st20generator": "node demo/ST20Generator"
+    "st20generator": "node demo/ST20Generator",
+    "oracle-scheduling": "./node_modules/.bin/babel-node scripts/monitoring/oracle_scheduling.js --presets es2015,stage-2",
+    "monitor-oracle-local": "./node_modules/.bin/babel-node scripts/monitoring/poly_usd_oracle_watcher.js ganache --presets es2015,stage-2"
   },
   "repository": {
     "type": "git",
@@ -58,6 +60,7 @@
     "ethereumjs-testrpc": "^6.0.3",
     "ethers": "^3.0.15",
     "openzeppelin-solidity": "1.10.0",
+    "read-yaml": "^1.1.0",
     "readline-sync": "^1.4.9",
     "shelljs": "^0.8.2",
     "solc": "^0.4.24",
@@ -67,6 +70,7 @@
   },
   "devDependencies": {
     "@soldoc/soldoc": "^0.4.3",
+    "babel-cli": "^6.26.0",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^11.0.0",
     "eslint-plugin-import": "^2.10.0",

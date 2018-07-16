@@ -23,7 +23,7 @@ contract MockPolyOracle is usingOraclize, IOracle, Ownable {
 
     bool public freezeOracle;
 
-    event LogPriceUpdated(uint256 _price, uint256 _oldPrice, uint256 _time);
+    event LogPriceUpdated(uint256 _price, uint256 _oldPrice, uint256 _time, bytes32 _queryId);
     event LogNewOraclizeQuery(uint256 _time, bytes32 _queryId, string _query);
 
     /**
@@ -54,7 +54,7 @@ contract MockPolyOracle is usingOraclize, IOracle, Ownable {
         }
         latestUpdate = requestIds[_requestId];
         delete requestIds[_requestId];
-        emit LogPriceUpdated(newPOLYUSD, POLYUSD, latestUpdate);
+        emit LogPriceUpdated(newPOLYUSD, POLYUSD, latestUpdate, _requestId);
         POLYUSD = newPOLYUSD;
     }
 
@@ -110,7 +110,7 @@ contract MockPolyOracle is usingOraclize, IOracle, Ownable {
     * @param _price POLYUSD price
     */
     function setPOLYUSD(uint256 _price) onlyOwner public {
-        emit LogPriceUpdated(_price, POLYUSD, now);
+        emit LogPriceUpdated(_price, POLYUSD, now, bytes32(0));
         POLYUSD = _price;
         latestUpdate = now;
     }
