@@ -20,7 +20,14 @@ properties:
     threshold_time: 3       # In Hours
   ganache:
     contract_name: MockPolyOracle
-    contract_address: "0xa09f616e2af3dcb208da39548da80985d3bcd562"
+    contract_address: "0x4ba3ed8baedbedc3cc65abd5466ae276f47aa345"
     threshold_time: 0
 
 choosen_network: ganache
+
+aws_email_settings:
+  aws_access_key_id: XXXXXXXXXXXXXX
+  aws_secret_access_key: XXXXXXXXXXXXXXXXXXXXXXX
+  region: us-east-1
+  from: satyam@polymath.network
+  to: satyam@secureblocks.io

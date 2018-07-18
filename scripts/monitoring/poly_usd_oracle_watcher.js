@@ -1,4 +1,5 @@
 import { duration } from '../../test/helpers/utils';
+import { send_alert_mail } from './mail_service';
 
 let Web3 = require('web3');
 let read = require('read-yaml');
@@ -66,7 +67,6 @@ async function subscribe(eventName, filter) {
         }, function(error, event) {
         })
         .on('data', function(event){
-            console.log(event); // same results as the optional callback above
             let eventData = {};
             eventData.timestamp = event.returnValues._time;
             eventData.queryId = event.returnValues._queryId;
@@ -86,7 +86,9 @@ async function subscribe(eventName, filter) {
 
 
 async function eventWatcher() {
-    await subscribe("LogNewOraclizeQuery", {});
+    //await subscribe("LogNewOraclizeQuery", {});
+    //await watchPriceUpdate("LogPriceUpdated", {});
+    await alert("testing");
 }
 
 
@@ -107,10 +109,10 @@ async function watchPriceUpdate(eventName, filter) {
                 if ( ValidRequestIds[0].timestamp <= currentTime + duration.minutes(5) || ValidRequestIds[0].timestamp >= currentTime + duration.minutes(5)) {
                     ValidRequestIds = ValidRequestIds.filter(item => item.timestamp != value);
                 } else {
-                    alert("");
+                    await alert("Not according to the timestamp");
                 }
             } else {
-                alert("");
+                await alert("In-valid queryId");
             }
             
         })
@@ -131,7 +133,7 @@ async function check_scheduled_call() {
         lastUpdate = _priceAndTime[1];
         lastPrice = _priceAndTime[0];
     } else {
-        alert("");
+        await alert("Extend the duration of the call");
     }
 }
 
@@ -144,6 +146,7 @@ async function check_Invalid_Id(id) {
 
 async function alert(message) {
     // Put the AWS settings of SES here
+    await send_alert_mail(message);
 }
 
 
