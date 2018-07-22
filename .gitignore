@@ -8,3 +8,7 @@ coverage.json
 .vscode/
 bridge.log
 yarn-error.log
+scripts/monitoring/node_modules
+scripts/monitoring/logs/
+.vscode
+scripts/monitoring/config.yml

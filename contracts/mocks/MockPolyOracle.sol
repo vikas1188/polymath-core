@@ -21,10 +21,18 @@ contract MockPolyOracle is usingOraclize, IOracle, Ownable {
     mapping (bytes32 => uint256) requestIds;
     mapping (bytes32 => bool) public ignoreRequestIds;
 
+    mapping (address => bool) public admin;
+
     bool public freezeOracle;
 
-    event LogPriceUpdated(uint256 _price, uint256 _oldPrice, uint256 _time, bytes32 _queryId);
+    event LogPriceUpdated(uint256 _price, uint256 _oldPrice, bytes32 _queryId, uint256 _time);
     event LogNewOraclizeQuery(uint256 _time, bytes32 _queryId, string _query);
+    event LogAdminSet(address _admin, bool _valid, uint256 _time);
+
+    modifier isAdminOrOwner {
+        require(admin[msg.sender] || msg.sender == owner, "Address is not admin or owner");
+        _;
+    }
 
     /**
     * @notice Constructor - accepts ETH to initialise a balance for subsequent Oraclize queries
@@ -54,7 +62,7 @@ contract MockPolyOracle is usingOraclize, IOracle, Ownable {
         }
         latestUpdate = requestIds[_requestId];
         delete requestIds[_requestId];
-        emit LogPriceUpdated(newPOLYUSD, POLYUSD, latestUpdate, _requestId);
+        emit LogPriceUpdated(newPOLYUSD, POLYUSD, _requestId, latestUpdate);
         POLYUSD = newPOLYUSD;
     }
 
@@ -62,10 +70,10 @@ contract MockPolyOracle is usingOraclize, IOracle, Ownable {
     * @notice Allows owner to schedule future Oraclize calls
     * @param _times UNIX timestamps to schedule Oraclize calls as of. Empty list means trigger an immediate query.
     */
-    function schedulePriceUpdatesFixed(uint256[] _times) payable onlyOwner public {
+    function schedulePriceUpdatesFixed(uint256[] _times) payable isAdminOrOwner public {
         bytes32 requestId;
         if (_times.length == 0) {
-            require(oraclize_getPrice("URL") <= address(this).balance, "Insufficient Funds");
+            require(oraclize_getPrice("URL", gasLimit) <= address(this).balance, "Insufficient Funds");
             requestId = oraclize_query("URL", oracleURL, gasLimit);
             requestIds[requestId] = now;
             if (latestScheduledUpdate < requestIds[requestId]) {
@@ -73,7 +81,7 @@ contract MockPolyOracle is usingOraclize, IOracle, Ownable {
             }
             emit LogNewOraclizeQuery(now, requestId, oracleURL);
         } else {
-            require(oraclize_getPrice("URL") * _times.length <= address(this).balance, "Insufficient Funds");
+            require(oraclize_getPrice("URL", gasLimit) * _times.length <= address(this).balance, "Insufficient Funds");
             for (uint256 i = 0; i < _times.length; i++) {
                 requestId = oraclize_query(_times[i], "URL", oracleURL, gasLimit);
                 requestIds[requestId] = _times[i];
@@ -91,9 +99,9 @@ contract MockPolyOracle is usingOraclize, IOracle, Ownable {
     * @param _interval how long (in seconds) between each subsequent Oraclize query
     * @param _iters the number of Oraclize queries to schedule.
     */
-    function schedulePriceUpdatesRolling(uint256 _startTime, uint256 _interval, uint256 _iters) onlyOwner public {
+    function schedulePriceUpdatesRolling(uint256 _startTime, uint256 _interval, uint256 _iters) payable isAdminOrOwner public {
         bytes32 requestId;
-        require(oraclize_getPrice("URL") * _iters <= address(this).balance, "Insufficient Funds");
+        require(oraclize_getPrice("URL", gasLimit) * _iters <= address(this).balance, "Insufficient Funds");
         for (uint256 i = 0; i < _iters; i++) {
             uint256 scheduledTime = _startTime + (i * _interval);
             requestId = oraclize_query(scheduledTime, "URL", oracleURL, gasLimit);
@@ -110,7 +118,7 @@ contract MockPolyOracle is usingOraclize, IOracle, Ownable {
     * @param _price POLYUSD price
     */
     function setPOLYUSD(uint256 _price) onlyOwner public {
-        emit LogPriceUpdated(_price, POLYUSD, now, bytes32(0));
+        emit LogPriceUpdated(_price, POLYUSD, 0, now);
         POLYUSD = _price;
         latestUpdate = now;
     }
@@ -166,6 +174,10 @@ contract MockPolyOracle is usingOraclize, IOracle, Ownable {
         gasLimit = _gasLimit;
     }
 
+    /**
+    * @notice Allows owner to set time after which price is considered stale
+    * @param _staleTime elapsed time after which price is considered stale
+    */
     function setStaleTime(uint256 _staleTime) onlyOwner public {
         staleTime = _staleTime;
     }
@@ -180,6 +192,16 @@ contract MockPolyOracle is usingOraclize, IOracle, Ownable {
         for (uint256 i = 0; i < _requestIds.length; i++) {
             ignoreRequestIds[_requestIds[i]] = _ignore[i];
         }
+    }
+
+    /**
+    * @notice Allows owner to set up admin addresses that can schedule updates
+    * @param _admin Admin address
+    * @param _valid Whether address should be added or removed from admin list
+    */
+    function setAdmin(address _admin, bool _valid) onlyOwner public {
+        admin[_admin] = _valid;
+        emit LogAdminSet(_admin, _valid, now);
     }
 
     /**
@@ -219,4 +241,12 @@ contract MockPolyOracle is usingOraclize, IOracle, Ownable {
         return POLYUSD;
     }
 
+    /**
+    * @notice Returns balance to owner
+    */
+    function drainContract() external onlyOwner {
+        msg.sender.transfer(address(this).balance);
+    }
+
 }
+

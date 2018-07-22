@@ -11,6 +11,7 @@ const SecurityTokenRegistry = artifacts.require('./SecurityTokenRegistry.sol')
 const TickerRegistry = artifacts.require('./TickerRegistry.sol')
 const STVersionProxy001 = artifacts.require('./tokens/STVersionProxy001.sol')
 const DevPolyToken = artifacts.require('./helpers/PolyTokenFaucet.sol')
+const MockPolyOracle = artifacts.require('./helpers/MockPolyOracle.sol');
 const MockOracle = artifacts.require('./MockOracle.sol')
 let BigNumber = require('bignumber.js');
 const cappedSTOSetupCost = new BigNumber(20000).times(new BigNumber(10).pow(18));   // 20K POLY fee
@@ -187,6 +188,7 @@ module.exports = function (deployer, network, accounts) {
     }).then(() => {
         console.log('\n')
         console.log('----- Polymath Core Contracts -----')
+        console.log(`*** MockPolyOracle Address: ${MockPolyOracle.address} ***`)
         console.log('*** Ticker Registry Address: ', TickerRegistry.address, '***')
         console.log('*** Module Registry Address: ', ModuleRegistry.address, '***')
         console.log('*** Security Token Registry Address: ', SecurityTokenRegistry.address, '***')
