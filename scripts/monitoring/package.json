@@ -1,0 +1,46 @@
+{
+  "name": "monitoring",
+  "version": "0.0.1",
+  "description": "Monitoring scripts for the oracle",
+  "main": "app.js",
+  "scripts": {
+    "oracle-scheduling:local": "./node_modules/.bin/babel-node scripts/oracle_scheduling.js ganache --presets es2015,stage-2 ----inspect=9229",
+    "monitor-oracle:local": "./node_modules/.bin/babel-node scripts/poly_usd_oracle_watcher.js ganache --presets es2015,stage-2",
+    "watchPrice:local": "./node_modules/.bin/babel-node scripts/watch_price_updater.js ganache --presets es2015,stage-2",
+    "purgeQueue": "./node_modules/.bin/babel-node scripts/purge_queue.js  --presets es2015,stage-2",
+    "schedulerJob": "./node_modules/.bin/babel-node jobs/scheduler.js --presets es2015,stage-2",
+    "stalePriceJob": "./node_modules/.bin/babel-node jobs/stalePrice.js --presets es2015,stage-2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PolymathNetwork/polymath-core.git"
+  },
+  "keywords": [
+    "Monitoring",
+    "oracle",
+    "POLY",
+    "USD",
+    "ETH"
+  ],
+  "author": "Polymath Inc",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PolymathNetwork/polymath-core/issues"
+  },
+  "homepage": "https://github.com/PolymathNetwork/polymath-core#readme",
+  "devDependencies": {
+    "chalk": "^2.4.1",
+    "child_process": "^1.0.2",
+    "moment": "^2.22.2",
+    "node-async-loop": "^1.2.2",
+    "node-cron": "^1.2.1",
+    "read-yaml": "^1.1.0",
+    "shelljs": "^0.8.2",
+    "web3": "^1.0.0-beta.34",
+    "winston": "^2.3.1"
+  },
+  "dependencies": {
+    "babel-cli": "^6.26.0",
+    "colors": "^1.3.0"
+  }
+}

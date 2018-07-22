@@ -20,14 +20,24 @@ properties:
     threshold_time: 3       # In Hours
   ganache:
     contract_name: MockPolyOracle
-    contract_address: "0x4ba3ed8baedbedc3cc65abd5466ae276f47aa345"
-    threshold_time: 0
-
-choosen_network: ganache
+    contract_address: "0x31440835e3cb9f1b67f1a43bf985de6c72aef238"
+    threshold_time: 3        # In Hours
 
 aws_email_settings:
-  aws_access_key_id: XXXXXXXXXXXXXX
-  aws_secret_access_key: XXXXXXXXXXXXXXXXXXXXXXX
+  aws_access_key_id: XXXXXXXXXXXXXXXXXX
+  aws_secret_access_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   region: us-east-1
   from: satyam@polymath.network
   to: satyam@secureblocks.io
+
+aws_sqs_settings:
+  aws_access_key_id: XXXXXXXXXXXXXXXXXX
+  aws_secret_access_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  region: us-east-1
+  queue_1: Schedule-queue.fifo
+  queue_2:
+
+oracle_scheduling:
+  hours_span: 3
+  weeks_schedule: 1
+  estimated_value: 0.0050277
