@@ -83,7 +83,7 @@ export async function readMessage(queueName, numberOfMessages) {
     var params = {
         MaxNumberOfMessages: numberOfMessages,
         QueueUrl: queueURL,
-        VisibilityTimeout: 0,
+        VisibilityTimeout: 5,
         WaitTimeSeconds: 0
        };
        sqs.receiveMessage(params, function(err, data) {
@@ -152,6 +152,7 @@ export async function deleteAllMessages(queueName) {
             let data = await readMessage(queueName, len);
             asyncLoop(data, async(chunk, next) => {
                 logger.info(`Id: ${chunk.MessageId}  ReceiptHandle: ${chunk.ReceiptHandle}`);
+                //await deleteMessage(queueName, chunk.ReceiptHandle);
                 idToDeleted.push({"Id": `${chunk.MessageId}`, "ReceiptHandle": `${chunk.ReceiptHandle}`});
                 return next(null);
             })

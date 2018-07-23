@@ -1,4 +1,4 @@
-import { duration, options, estimateGas } from '../utils/helper.js';
+import { duration, options, estimateGas, writePid } from '../utils/helper.js';
 import { send_alert_mail } from '../services/mail_service.js';
 import {  
     getQueueUrl,
@@ -20,7 +20,6 @@ let logger = require('../utils/logger.js').logger;
 let polyUsdOracleABI;
 let polyUSDOracle;
 let web3;
-let fromBlock = 0;
 let lastUpdate;
 let lastPrice;
 let owner;
@@ -54,6 +53,8 @@ if (typeof web3 !== 'undefined') {
 }
 
 logger.info(`Choosen network is ${chalk.blue(`${selected_network.toUpperCase()}`)} & webSocket instance for web3 is created successfully..`)
+logger.info(`Current process id ${process.pid}`);
+
 
 // contract Instance
 async function setup() {
@@ -69,7 +70,7 @@ async function setup() {
 
     let accounts = await web3.eth.getAccounts();
     owner = accounts[0];
-
+    writePid("monitor_pid", process.pid);
     logger.info(`Everything set-up well, owner who will call the functions : ${owner}`);
     eventWatcher();
 }
@@ -84,7 +85,7 @@ async function watchPriceUpdate(eventName, filter) {
     try {
         await polyUSDOracle.events[`${eventName}`]({
             filter:filter,
-            fromBlock:fromBlock
+            fromBlock:0
         }, async(error, event) => {
             if(error) {
                 logger.error(`Error in filtering the logs :${error}`);
@@ -101,11 +102,17 @@ async function watchPriceUpdate(eventName, filter) {
                 if (!await check_Invalid_Id(event.returnValues._queryId)) {
                     logger.info(`Latest queryId is: ${event.returnValues._queryId} and timestamp is: ${event.returnValues._time}`);
                     let messageData = await readMessage(config.aws_sqs_settings.queue_1,1);
+                    if (JSON.parse(messageData[0].Body).queryId == undefined) {
+                        logger.error(`Reading the undefined value`);
+                        await alert(`Reading the undefined value`, `readMessage and event data does not match. High chances is that the queue order is get wrong try to fix this manually`);                        
+                    }
                     let _id = JSON.parse(messageData[0].Body).queryId;
-                    logger.info(`Processing the queryId: ${chalk.green(`${_id}`)}....`);
+                    logger.info(`Processing the queryId comes from queue: ${chalk.green(`${_id}`)}....`);
+                    logger.info(`Data retrieve from the blockchain: ${chalk.yellow(`${event.returnValues._queryId}`)}`);
+                    logger.info(`Timestamp for the corresponding Id is :${await polyUSDOracle.methods.requestIds(event.returnValues._queryId).call()}`);
                     if (_id === event.returnValues._queryId) {
                         logger.info(`${_id} is successfully match...`);
-                        let messageId = await deleteMessage(config.aws_sqs_settings.queue_1, JSON.parse(messageData[0].ReceiptHandle));
+                        let messageId = await deleteMessage(config.aws_sqs_settings.queue_1, messageData[0].ReceiptHandle);
                         if (!messageId) {
                             logger.error(`Error in deleting the Id: ${_id}. If it will not be resolved then it will mess the queue series so please try to delete this queue manually with in 3 hours`);
                             await alert(`Connection problem with sqs instance`,`Error in deleting the Id: ${_id}. If it will not be resolved then it will mess the queue series so please try to delete this queue manually with in 3 hours`);
@@ -148,8 +155,9 @@ async function alert(message, custom) {
 }
 
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', async(reason, promise) => {
     logger.error(`Unhandled Rejection at: ${reason.stack}`);
+    await alert("Unhandeled error introduce", `${reason.stack}`);
 });
 
 

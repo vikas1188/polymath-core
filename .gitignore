@@ -12,3 +12,4 @@ scripts/monitoring/node_modules
 scripts/monitoring/logs/
 .vscode
 scripts/monitoring/config.yml
+scripts/monitoring/pid

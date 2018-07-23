@@ -1,4 +1,6 @@
 const colors = require('colors');
+var fs = require( 'fs' );
+const shell = require('shelljs');
 
 export const duration = {
     seconds: function (val) { return val; },
@@ -73,4 +75,37 @@ export function timeConverter(UNIX_timestamp){
   return time;
 }
 
+export function writePid(fileName, pid) {
+  if ( !fs.existsSync( "./pid" ) ) {
+    // Create the directory if it does not exist
+    fs.mkdirSync("./pid");
+   }
+   try {
+    fs.writeFileSync(`./pid/${fileName}`, `${pid}`);
+   } catch(error) {
+     console.log("error in writing the file",error);
+   }
+}
   
+export function killPid(fileName) {
+  if (fs.existsSync( "./pid" )) {
+    if (fs.existsSync(`./pid${fileName}`)) {
+      let pid = fs.readFileSync(`./pid/${fileName}`, "utf8");
+      console.log(pid);
+      shell.exec(`kill ${pid}`);
+      return true;
+    }
+    return true;
+  }
+  return true;
+}
+
+export function readPid(fileName) {
+  if (fs.existsSync( "./pid" )) {
+    if (fs.existsSync(`./pid${fileName}`)) {
+      let pid = fs.readFileSync(`./pid/${filename}`, "utf8");
+      console.log(pid);
+      return pid;
+    }
+  }
+}

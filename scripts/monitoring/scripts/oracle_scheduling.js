@@ -1,4 +1,4 @@
-import { duration, options, estimateGas, timeConverter } from '../utils/helper.js';
+import { duration, options, estimateGas, timeConverter, writePid } from '../utils/helper.js';
 import { send_alert_mail } from '../services/mail_service.js';
 import { 
     pushMessage,
@@ -26,6 +26,8 @@ let timeSchedules = new Array();
 const DEFAULT_GAS_PRICE = 10000000000;
 const hoursInWeek = 7 * 24;
 let selected_network = process.argv.slice(2)[0];
+let schedule = process.argv.slice(2)[1];
+let span = process.argv.slice(2)[2];
 
 
 // set the provider you want from Web3.providers
@@ -47,7 +49,9 @@ if (typeof web3 !== 'undefined') {
     }
 }
 
-logger.info(`Choosen network is ${chalk.blue(`${selected_network.toUpperCase()}`)} & webSocket instance for web3 is created successfully..`)
+logger.info(`Choosen network is ${chalk.blue(`${selected_network.toUpperCase()}`)} & choosen scheduling period is is ${chalk.blue(`${schedule.toUpperCase()}`)}`);
+logger.info(`WebSocket instance for web3 is created successfully..`);
+logger.info(`Current process id ${process.pid}`);
 
 try {
     polyUsdOracleABI = JSON.parse(require('fs').readFileSync('../../build/contracts/MockPolyOracle.json').toString()).abi;
@@ -68,7 +72,7 @@ async function setup() {
 
     let accounts = await web3.eth.getAccounts();
     owner = accounts[0];
-
+    writePid("scheduler_pid", process.pid);
     logger.info(`Everything set-up well, owner who will call the functions : ${owner}`);
     await check_scheduler_status();
 }
@@ -84,9 +88,10 @@ async function check_scheduler_status() {
             if (len <=8 && len > 0) {
                 let data = await readMessage(config.aws_sqs_settings.queue_1, 10);
                 // JSON.parse(data[len-1].Body).scheduleTime
-                let timeLeft = (parseInt(JSON.parse(data[len-1].Body).scheduleTime) - Math.floor(Date.now()/1000))/(24*60*60);
-                send_alert_mail("Schedule POLYUSD oracle calls", `only ${timeLeft} hrs left`);
-                logger.info(`Scheduling the oracle calls only ${timeLeft} hrs left`);
+                let hoursLeft = (parseInt(JSON.parse(data[len-1].Body).scheduleTime) - Math.floor(Date.now()/1000))/(24*60*60);
+                let timeLeft = parseInt(JSON.parse(data[len-1].Body).scheduleTime) - Math.floor(Date.now()/1000);
+                send_alert_mail("Schedule POLYUSD oracle calls", `only ${hoursLeft} hrs left`);
+                logger.info(`Scheduling the oracle calls only ${hoursLeft} hrs left`);
                 await scheduling(timeLeft);
             } else {
                 if (len == 0) {
@@ -104,12 +109,16 @@ async function check_scheduler_status() {
 }
 
 async function scheduling(timeLeft) {
-    let noOftiers = Math.floor((((parseInt(config.oracle_scheduling.weeks_schedule)) * hoursInWeek) / parseInt(config.oracle_scheduling.hours_span)));
+    let noOftiers;
+    if (span == "hours_span")
+        noOftiers= Math.floor((((parseInt(config.oracle_scheduling[`${schedule}`])) * getHours(schedule)) / parseInt(config.oracle_scheduling[`${span}`])));
+    if(span == "minutes_span") 
+        noOftiers= Math.floor((((parseInt(config.oracle_scheduling[`${schedule}`])) * getHours(schedule) * 60) / parseInt(config.oracle_scheduling[`${span}`])));
     let tiers = new Array();
     let value = parseFloat(config.oracle_scheduling.estimated_value)*noOftiers;
     logger.info(`Scheduling the call for no. of tiers: ${chalk.green(`${noOftiers}`)} it will cost the estimated value in ETH is : ${chalk.green(`${value}`)}`);
     for (let i = 0; i < noOftiers; i++) {
-        tiers.push((Math.floor(Date.now()/1000) + (i*parseInt(config.oracle_scheduling.hours_span)*60*60)+ timeLeft));
+        tiers.push((Math.floor(Date.now()/1000) + (i*parseInt(config.oracle_scheduling[`${span}`])* getSeconds(span))+ timeLeft));
     }
     if (await polyUSDOracle.methods.owner().call() != owner || await polyUSDOracle.methods.admin(owner).call()) {
         (async() => {
@@ -137,7 +146,9 @@ async function scheduling(timeLeft) {
                         let result = await pushMessage(config.aws_sqs_settings.queue_1, data.scheduleTime, data.queryId);
                         if (result == null || result == undefined) {
                             (async() => {
+                                logger.error(`Not able to write in a queue possibly a connection problem with SQS service of Amazon`);
                                 await send_alert_mail("Not able to write in a queue", `Pushing the message in a queue is giving the error`);
+                                return;
                             })
                         } else {
                             return next(null);
@@ -147,11 +158,11 @@ async function scheduling(timeLeft) {
                 .on('error', async(error) => {
                     logger.error("Error in transaction", error);
                     await send_alert_mail("Call scheduling is fail", error.message);
-                    process.exit(0);
+                    return;
                 });
             } catch(error) {
                 logger.error("Tx failure of scheduling calls", error);
-                process.exit(0);
+                return;
             }
             
             // logging the IDS
@@ -162,7 +173,7 @@ async function scheduling(timeLeft) {
             (async() => {
                 logger.info(`caller ${owner} doesn't have sufficient ETH balance to initiate the tx.`);
                 await send_alert_mail("ETH lackness", `Caller ${owner} doesn't have sufficient ETH balance to initiate the tx.`);
-                process.exit(0);
+                return;
             })
         }   
     }
@@ -170,10 +181,32 @@ async function scheduling(timeLeft) {
 }
 
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', async(reason, promise) => {
     logger.error(`Unhandled Rejection at: ${reason.stack}`);
+    await send_alert_mail("Unhandeled error introduce", `${reason.stack}`);
   })
 
+
+function getHours(schedule) {
+    if(schedule === "weekly") {
+        return 7*24;
+    }
+    if(schedule === "daily") {
+        return 24;
+    }
+    if(schedule === "monthly") {
+        return 7*30*24;
+    }
+}
+
+function getSeconds(span) {
+    if (span === "hours_span") {
+        return 60*60;
+    }
+    if(span === "minutes_span") {
+        return 60;
+    }
+}
 
 setup();
 

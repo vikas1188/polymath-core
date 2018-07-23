@@ -39,5 +39,8 @@ aws_sqs_settings:
 
 oracle_scheduling:
   hours_span: 3
-  weeks_schedule: 1
+  minutes_span: 15
+  weekly: 1
+  daily: 1
+  monthly: 1
   estimated_value: 0.0050277

@@ -4,12 +4,13 @@
   "description": "Monitoring scripts for the oracle",
   "main": "app.js",
   "scripts": {
-    "oracle-scheduling:local": "./node_modules/.bin/babel-node scripts/oracle_scheduling.js ganache --presets es2015,stage-2 ----inspect=9229",
-    "monitor-oracle:local": "./node_modules/.bin/babel-node scripts/poly_usd_oracle_watcher.js ganache --presets es2015,stage-2",
-    "watchPrice:local": "./node_modules/.bin/babel-node scripts/watch_price_updater.js ganache --presets es2015,stage-2",
+    "oracle-scheduling:local": "./node_modules/.bin/babel-node scripts/oracle_scheduling.js ganache daily minutes_span --presets es2015,stage-2 ----inspect=9229",
+    "monitor-oracle:local": "./node_modules/.bin/babel-node scripts/monitor_oracle_price.js ganache --presets es2015,stage-2",
+    "stalePrice:local": "./node_modules/.bin/babel-node scripts/check_stale_price.js ganache minutes_span --presets es2015,stage-2",
     "purgeQueue": "./node_modules/.bin/babel-node scripts/purge_queue.js  --presets es2015,stage-2",
     "schedulerJob": "./node_modules/.bin/babel-node jobs/scheduler.js --presets es2015,stage-2",
-    "stalePriceJob": "./node_modules/.bin/babel-node jobs/stalePrice.js --presets es2015,stage-2"
+    "stalePriceJob": "./node_modules/.bin/babel-node jobs/stalePrice.js --presets es2015,stage-2",
+    "monitorJob": "./node_modules/.bin/babel-node jobs/monitor.js --presets es2015,stage-2"
   },
   "repository": {
     "type": "git",
