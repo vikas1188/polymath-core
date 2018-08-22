@@ -4,7 +4,7 @@ const Web3 = require('web3');
 if (typeof web3 !== 'undefined') {
     web3 = new Web3(web3.currentProvider);
 } else {
-    web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+    web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/'));
 }
 
 let _polymathRegistry;
@@ -31,26 +31,26 @@ function getPolymathRegistryAddress(networkId) {
 }
 
 async function getPolymathRegistry() {
-  if (typeof _polymathRegistry === 'undefined') { 
+  if (typeof _polymathRegistry === 'undefined') {
     let networkId = await web3.eth.net.getId();
     let polymathRegistryAddress = getPolymathRegistryAddress(networkId);
     let polymathRegistryAbi = abis.polymathRegistry();
     _polymathRegistry = new web3.eth.Contract(polymathRegistryAbi, polymathRegistryAddress);
     _polymathRegistry.setProvider(web3.currentProvider);
   }
-  
+
   return _polymathRegistry;
 }
 
 async function getModuleRegistry() {
-  if (typeof _moduleRegistry === 'undefined') { 
+  if (typeof _moduleRegistry === 'undefined') {
     let polymathRegistry = await getPolymathRegistry();
     let moduleRegistryAddress = await polymathRegistry.methods.getAddress("ModuleRegistry").call();
     let moduleRegistryAbi = abis.moduleRegistryAbi();
     _moduleRegistry = new web3.eth.Contract(moduleRegistryAbi, moduleRegistryAddress);
     _moduleRegistry.setProvider(web3.currentProvider);
   }
-  
+
   return _moduleRegistry;
 }
 
