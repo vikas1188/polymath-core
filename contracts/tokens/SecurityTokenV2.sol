@@ -508,7 +508,7 @@ contract SecurityToken is StandardToken, DetailedERC20, ReentrancyGuard, Registr
 
     /**
      * @notice Permanently freeze minting of this security token.
-     * @dev It MUST NOT be possiblt to increase `totalSuppy` after this function is called.
+     * @dev It MUST NOT be possible to increase `totalSuppy` after this function is called.
      */
     function freezeMinting() external mintingAllowed() onlyOwner {
         mintingFrozen = true;

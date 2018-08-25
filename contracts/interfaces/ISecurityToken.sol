@@ -145,14 +145,10 @@ interface ISecurityToken {
     function unfreezeTransfers() external;
 
     /**
-     * @notice End token minting period permanently for Issuer
+     * @notice Permanently freeze minting of this security token.
+     * @dev It MUST NOT be possible to increase `totalSuppy` after this function is called.
      */
-    function finishMintingIssuer() external;
-
-    /**
-     * @notice End token minting period permanently for STOs
-     */
-    function finishMintingSTO() external;
+    function freezeMinting() external;
 
     /**
      * @notice mints new tokens and assigns them to the target _investor.
