@@ -49,8 +49,8 @@ contract SecurityToken is StandardToken, DetailedERC20, ReentrancyGuard, Registr
     // Reference to token burner contract
     ITokenBurner public tokenBurner;
 
-    // Use to halt all the transactions
-    bool public freeze = false;
+    // Use to temporarily halt all transactions
+    bool public transfersFrozen = false;
 
     struct ModuleData {
         bytes32 name;
@@ -97,8 +97,8 @@ contract SecurityToken is StandardToken, DetailedERC20, ReentrancyGuard, Registr
     event LogModuleRemoved(uint8 indexed _type, address _module, uint256 _timestamp);
     // Emit when the budget allocated to a module is changed
     event LogModuleBudgetChanged(uint8 indexed _moduleType, address _module, uint256 _budget);
-    // Emit when all the transfers get freeze
-    event LogFreezeTransfers(bool _freeze, uint256 _timestamp);
+    // Emit when transfers are frozen or unfrozen
+    event LogFreezeTransfers(bool _status, uint256 _timestamp);
     // Emit when new checkpoint created
     event LogCheckpointCreated(uint256 indexed _checkpointId, uint256 _timestamp);
     // Emit when the minting get finished for the Issuer
@@ -381,21 +381,21 @@ contract SecurityToken is StandardToken, DetailedERC20, ReentrancyGuard, Registr
     }
 
     /**
-     * @notice freeze all the transfers
+     * @notice freeze transfers
      */
     function freezeTransfers() external onlyOwner {
-        require(!freeze);
-        freeze = true;
-        emit LogFreezeTransfers(freeze, now);
+        require(!transfersFrozen);
+        transfersFrozen = true;
+        emit LogFreezeTransfers(true, now);
     }
 
     /**
-     * @notice un-freeze all the transfers
+     * @notice un-freeze transfers
      */
     function unfreezeTransfers() external onlyOwner {
-        require(freeze);
-        freeze = false;
-        emit LogFreezeTransfers(freeze, now);
+        require(transfersFrozen);
+        transfersFrozen = false;
+        emit LogFreezeTransfers(false, now);
     }
 
     /**
@@ -486,7 +486,7 @@ contract SecurityToken is StandardToken, DetailedERC20, ReentrancyGuard, Registr
      * @return bool
      */
     function verifyTransfer(address _from, address _to, uint256 _amount) public checkGranularity(_amount) returns (bool) {
-        if (!freeze) {
+        if (!transfersFrozen) {
             bool isTransfer = false;
             if (transferFunctions[getSig(msg.data)]) {
               isTransfer = true;
