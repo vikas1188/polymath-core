@@ -19,10 +19,13 @@ contract ModuleRegistry is IModuleRegistry, Pausable, RegistryUpdater, ReclaimTo
     mapping (address => address[]) public reputation;
     // Mapping contain the list of addresses of Module factory for a particular type
     mapping (uint8 => address[]) public moduleList;
-    // contains the list of verified modules
+    // Contains the list of verified modules
     mapping (address => bool) public verified;
     // Contains the list of the available tags corresponds to the module type
     mapping (uint8 => bytes32[]) public availableTags;
+
+    // Indicates if custom modules can be added by token issuers.
+    bool public customModulesAllowed;
 
     // Emit when Module been used by the securityToken
     event LogModuleUsed(address indexed _moduleFactory, address indexed _securityToken);
@@ -37,19 +40,21 @@ contract ModuleRegistry is IModuleRegistry, Pausable, RegistryUpdater, ReclaimTo
     }
 
     /**
-     * @notice Called by a security token to notify the registry it is using a module
+     * @notice Called by a security token to check if the ModuleFactory is verified or appropriate custom module
+     * @dev ModuleFactory reputation increases by one every time it is deployed
      * @param _moduleFactory is the address of the relevant module factory
      */
     function useModule(address _moduleFactory) external {
-        //If caller is a registered security token, then register module usage
-        if (ISecurityTokenRegistry(securityTokenRegistry).isSecurityToken(msg.sender)) {
-            require(registry[_moduleFactory] != 0, "ModuleFactory type should not be 0");
-            //To use a module, either it must be verified, or owned by the ST owner
+        require(ISecurityTokenRegistry(securityTokenRegistry).isSecurityToken(msg.sender), "msg.sender must be a registered SecurityToken");
+        if (customModulesAllowed) {
             require(verified[_moduleFactory]||(Ownable(_moduleFactory).owner() == Ownable(msg.sender).owner()),
-              "Module factory is not verified as well as not called by the owner");
-            reputation[_moduleFactory].push(msg.sender);
-            emit LogModuleUsed (_moduleFactory, msg.sender);
+              "ModuleFactory must be verified or SecurityToken owner must be ModuleFactory owner");
+        } else {
+            require(verified[_moduleFactory], "ModuleFactory must be verified");
         }
+        require(registry[_moduleFactory] != 0, "ModuleFactory type should not be 0");
+        reputation[_moduleFactory].push(msg.sender);
+        emit LogModuleUsed(_moduleFactory, msg.sender);
     }
 
     /**
@@ -81,6 +86,14 @@ contract ModuleRegistry is IModuleRegistry, Pausable, RegistryUpdater, ReclaimTo
         verified[_moduleFactory] = _verified;
         emit LogModuleVerified(_moduleFactory, _verified);
         return true;
+    }
+
+    /**
+     * @notice Called by Polymath to modify ability to add custom modules
+     * @param _status true if custom modules are to be allowed, false otherwise.
+     */
+    function allowCustomModules(bool _status) onlyOwner {
+        customModulesAllowed = _status;
     }
 
     /**
