@@ -74,7 +74,7 @@ contract ModuleRegistry is IModuleRegistry, Pausable, RegistryUpdater, ReclaimTo
     }
 
     /**
-    * @notice Called by Polymath to verify modules for SecurityToken to use.
+    * @notice Called by Polymath to add or remove ModuleFactory from the registry of approved modules
     * @notice A module can not be used by an ST unless first approved/verified by Polymath
     * @notice (The only exception to this is that the author of the module is the owner of the ST)
     * @param _moduleFactory is the address of the module factory to be registered
