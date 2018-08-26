@@ -42,19 +42,23 @@ contract ModuleRegistry is IModuleRegistry, Pausable, RegistryUpdater, ReclaimTo
     /**
      * @notice Called by a security token to check if the ModuleFactory is verified or appropriate custom module
      * @dev ModuleFactory reputation increases by one every time it is deployed
+     * @dev Any module can be added during token creation without being registered if it is defined in the token proxy deployment contract
      * @param _moduleFactory is the address of the relevant module factory
      */
     function useModule(address _moduleFactory) external {
-        require(ISecurityTokenRegistry(securityTokenRegistry).isSecurityToken(msg.sender), "msg.sender must be a registered SecurityToken");
-        if (customModulesAllowed) {
-            require(verified[_moduleFactory]||(Ownable(_moduleFactory).owner() == Ownable(msg.sender).owner()),
-              "ModuleFactory must be verified or SecurityToken owner must be ModuleFactory owner");
-        } else {
-            require(verified[_moduleFactory], "ModuleFactory must be verified");
+        // Why do we require an issuer to submit custom module to registry before adding? If custom modules are allowed, we should not require the ownership check.
+        // This if statement is required to be able to add modules from the token proxy contract during deployment
+        if (ISecurityTokenRegistry(securityTokenRegistry).isSecurityToken(msg.sender)) {
+            if (customModulesAllowed) {
+                require(verified[_moduleFactory]||(Ownable(_moduleFactory).owner() == Ownable(msg.sender).owner()),
+                  "ModuleFactory must be verified or SecurityToken owner must be ModuleFactory owner");
+            } else {
+                require(verified[_moduleFactory], "ModuleFactory must be verified");
+            }
+            require(registry[_moduleFactory] != 0, "ModuleFactory type should not be 0");
+            reputation[_moduleFactory].push(msg.sender);
+            emit LogModuleUsed(_moduleFactory, msg.sender);
         }
-        require(registry[_moduleFactory] != 0, "ModuleFactory type should not be 0");
-        reputation[_moduleFactory].push(msg.sender);
-        emit LogModuleUsed(_moduleFactory, msg.sender);
     }
 
     /**
