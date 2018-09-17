@@ -86,13 +86,6 @@ contract SecurityTokenRegistry is ISecurityTokenRegistry, EternalStorage {
         uint256 indexed _expiryDate
     );
 
-    ///@notice if isReserved returns:
-    // OD - Owned and Deployed
-    // NN - Not-owned and Not-deployed
-    // ON - Owned and Not-deployed
-    // ND - Not-owned and Deployed
-    enum TickerStatus { OD, NN, ON, ND}
-
     /////////////////////////////
     // Initialization
     /////////////////////////////
