@@ -79,8 +79,8 @@ contract SignedTransferManager is ITransferManager {
             
             require(invalidSignatures[_data] != true, "Invalid signature - signature is either used or deemed as invalid");
             bytes32 hash = keccak256(abi.encodePacked(this, _from, _to, _amount));
-            bytes32 _hash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
-            address signer = _recoverSignerAdd(_hash, _data);
+            //bytes32 _hash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
+            address signer = _recoverSignerAdd(hash, _data);
             require(signers[signer] == true, "Invalid signature - signer is not on the list");
             
             if(_isTransfer == true){
@@ -90,6 +90,10 @@ contract SignedTransferManager is ITransferManager {
             return Result.VALID;
         }
         return Result.NA;
+    }
+
+    function getHash(address _from, address _to, uint256 _amount) public view returns(bytes32) {
+        return keccak256(abi.encodePacked(this, _from, _to, _amount));
     }
 
     /**
@@ -120,7 +124,7 @@ contract SignedTransferManager is ITransferManager {
         require(invalidSignatures[_data] != true, "This signature is invalid.");
 
         bytes32 hash = keccak256(abi.encodePacked(this, _from, _to, _amount));
-        bytes32 _hash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
+        //bytes32 _hash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
 
         return _recoverSignerAdd(hash,_data);
         // require(_recoverSignerAdd(_hash,_data) == msg.sender, "Incorrect Signer for this signature");
@@ -155,6 +159,7 @@ contract SignedTransferManager is ITransferManager {
         }
 
         return ecrecover(keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash)), v, r, s);
+        //return ecrecover(_hash, v, r, s);
     }
 
    
