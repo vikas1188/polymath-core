@@ -27,7 +27,7 @@ contract MockBurnFactory is TrackedRedemptionFactory {
             require(polyToken.transferFrom(msg.sender, owner, setupCost), "Unable to pay setup cost");
         //Check valid bytes - can only call module init function
         MockRedemptionManager mockRedemptionManager = new MockRedemptionManager(msg.sender, address(polyToken));
-        emit GenerateModuleFromFactory(address(mockRedemptionManager), getName(), address(this), msg.sender, setupCost, now);
+        emit GenerateModuleFromFactory(address(mockRedemptionManager), name, address(this), msg.sender, setupCost, now);
         return address(mockRedemptionManager);
     }
 

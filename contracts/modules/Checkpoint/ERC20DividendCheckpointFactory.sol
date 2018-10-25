@@ -34,7 +34,7 @@ contract ERC20DividendCheckpointFactory is ModuleFactory {
         if (setupCost > 0)
             require(polyToken.transferFrom(msg.sender, owner, setupCost), "insufficent allowance");
         address erc20DividendCheckpoint = new ERC20DividendCheckpoint(msg.sender, address(polyToken));
-        emit GenerateModuleFromFactory(erc20DividendCheckpoint, getName(), address(this), msg.sender, setupCost, now);
+        emit GenerateModuleFromFactory(erc20DividendCheckpoint, name, address(this), msg.sender, setupCost, now);
         return erc20DividendCheckpoint;
     }
 
@@ -45,41 +45,6 @@ contract ERC20DividendCheckpointFactory is ModuleFactory {
         uint8[] memory res = new uint8[](1);
         res[0] = 4;
         return res;
-    }
-
-    /**
-     * @notice Get the name of the Module
-     */
-    function getName() public view returns(bytes32) {
-        return name;
-    }
-
-    /**
-     * @notice Get the description of the Module
-     */
-    function getDescription() external view returns(string) {
-        return description;
-    }
-
-    /**
-     * @notice Get the title of the Module
-     */
-    function getTitle() external  view returns(string) {
-        return title;
-    }
-
-    /**
-     * @notice Get the version of the Module
-     */
-    function getVersion() external view returns(string) {
-        return version;
-    }
-
-    /**
-     * @notice Get the setup cost of the module
-     */
-    function getSetupCost() external view returns (uint256) {
-        return setupCost;
     }
 
     /**

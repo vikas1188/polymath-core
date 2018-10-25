@@ -34,7 +34,7 @@ contract TrackedRedemptionFactory is ModuleFactory {
         if (setupCost > 0)
             require(polyToken.transferFrom(msg.sender, owner, setupCost), "Failed transferFrom because of sufficent Allowance is not provided");
         address trackedRedemption = new TrackedRedemption(msg.sender, address(polyToken));
-        emit GenerateModuleFromFactory(address(trackedRedemption), getName(), address(this), msg.sender, setupCost, now);
+        emit GenerateModuleFromFactory(address(trackedRedemption), name, address(this), msg.sender, setupCost, now);
         return address(trackedRedemption);
     }
 
@@ -45,41 +45,6 @@ contract TrackedRedemptionFactory is ModuleFactory {
         uint8[] memory res = new uint8[](1);
         res[0] = 5;
         return res;
-    }
-
-    /**
-     * @notice Get the name of the Module
-     */
-    function getName() public view returns(bytes32) {
-        return name;
-    }
-
-    /**
-     * @notice Get the description of the Module
-     */
-    function getDescription() external view returns(string) {
-        return description;
-    }
-
-    /**
-     * @notice Get the version of the Module
-     */
-    function getVersion() external view returns(string) {
-        return version;
-    }
-
-    /**
-     * @notice Get the title of the Module
-     */
-    function getTitle() external view returns(string) {
-        return title;
-    }
-
-    /**
-     * @notice Get the setup cost of the module
-     */
-    function getSetupCost() external view returns (uint256) {
-        return setupCost;
     }
 
     /**
