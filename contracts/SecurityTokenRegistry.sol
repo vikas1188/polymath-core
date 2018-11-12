@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
+import {IERC20 as IERC20Poly} from "./interfaces/IERC20.sol";
 import "./interfaces/IOwnable.sol";
 import "./interfaces/ISTFactory.sol";
 import "./interfaces/ISecurityTokenRegistry.sol";
@@ -210,7 +210,7 @@ contract SecurityTokenRegistry is ISecurityTokenRegistry, EternalStorage {
         // Attempt to charge the reg fee if it is > 0 POLY
         uint256 tickerFee = getTickerRegistrationFee();
         if (tickerFee > 0)
-            require(IERC20(getAddress(POLYTOKEN)).transferFrom(msg.sender, address(this), tickerFee), "Insufficent allowance");
+            require(IERC20Poly(getAddress(POLYTOKEN)).transferFrom(msg.sender, address(this), tickerFee), "Insufficent allowance");
         string memory ticker = Util.upper(_ticker);
         require(_tickerAvailable(ticker), "Ticker is reserved");
         // Check whether ticker was previously registered (and expired)
@@ -531,7 +531,7 @@ contract SecurityTokenRegistry is ISecurityTokenRegistry, EternalStorage {
 
         uint256 launchFee = getSecurityTokenLaunchFee();
         if (launchFee > 0)
-            require(IERC20(getAddress(POLYTOKEN)).transferFrom(msg.sender, address(this), launchFee), "Insufficient allowance");
+            require(IERC20Poly(getAddress(POLYTOKEN)).transferFrom(msg.sender, address(this), launchFee), "Insufficient allowance");
 
         address newSecurityTokenAddress = ISTFactory(getSTFactoryAddress()).deployToken(
             _name,
@@ -693,7 +693,7 @@ contract SecurityTokenRegistry is ISecurityTokenRegistry, EternalStorage {
     */
     function reclaimERC20(address _tokenContract) external onlyOwner {
         require(_tokenContract != address(0), "Invalid address");
-        IERC20 token = IERC20(_tokenContract);
+        IERC20Poly token = IERC20Poly(_tokenContract);
         uint256 balance = token.balanceOf(address(this));
         require(token.transfer(owner(), balance), "Transfer failed");
     }

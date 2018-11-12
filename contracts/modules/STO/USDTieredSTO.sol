@@ -22,7 +22,7 @@ contract USDTieredSTO is ISTO, ReentrancyGuard {
     string public ETH_ORACLE = "EthUsdOracle";
     mapping (bytes32 => mapping (bytes32 => string)) oracleKeys;
 
-    IERC20 public usdToken;
+    IERC20Poly public usdToken;
 
     // Determine whether users can invest on behalf of a beneficiary
     bool public allowBeneficialInvestments = false;
@@ -280,7 +280,7 @@ contract USDTieredSTO is ISTO, ReentrancyGuard {
         }
         wallet = _wallet;
         reserveWallet = _reserveWallet;
-        usdToken = IERC20(_usdToken);
+        usdToken = IERC20Poly(_usdToken);
         emit SetAddresses(_wallet, _reserveWallet, _usdToken);
     }
 
@@ -404,7 +404,7 @@ contract USDTieredSTO is ISTO, ReentrancyGuard {
         investorInvested[_beneficiary][uint8(_fundRaiseType)] = investorInvested[_beneficiary][uint8(_fundRaiseType)].add(spentValue);
         fundsRaised[uint8(_fundRaiseType)] = fundsRaised[uint8(_fundRaiseType)].add(spentValue);
         // Forward DAI to issuer wallet
-        IERC20 token = _fundRaiseType == FundRaiseType.POLY ? polyToken : usdToken;
+        IERC20Poly token = _fundRaiseType == FundRaiseType.POLY ? polyToken : usdToken;
         require(token.transferFrom(msg.sender, wallet, spentValue), "Transfer failed");
         emit FundsReceived(msg.sender, _beneficiary, spentUSD, _fundRaiseType, _tokenAmount, spentValue, rate);
     }

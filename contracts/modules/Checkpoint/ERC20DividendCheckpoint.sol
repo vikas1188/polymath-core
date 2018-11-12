@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 import "./DividendCheckpoint.sol";
 import "../../interfaces/IOwnable.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
+import {IERC20 as IERC20Poly} from "../../interfaces/IERC20.sol";
 
 /**
  * @title Checkpoint module for issuing ERC20 dividends
@@ -176,7 +176,7 @@ contract ERC20DividendCheckpoint is DividendCheckpoint {
         require(_amount > 0, "No dividend sent");
         require(_token != address(0), "Invalid token");
         require(_checkpointId <= securityTokenInstance.currentCheckpointId(), "Invalid checkpoint");
-        require(IERC20(_token).transferFrom(msg.sender, address(this), _amount), "insufficent allowance");
+        require(IERC20Poly(_token).transferFrom(msg.sender, address(this), _amount), "insufficent allowance");
         require(_name[0] != 0);
         uint256 dividendIndex = dividends.length;
         uint256 currentSupply = securityTokenInstance.totalSupplyAt(_checkpointId);
@@ -241,7 +241,7 @@ contract ERC20DividendCheckpoint is DividendCheckpoint {
         _dividend.claimedAmount = claim.add(_dividend.claimedAmount);
         uint256 claimAfterWithheld = claim.sub(withheld);
         if (claimAfterWithheld > 0) {
-            require(IERC20(dividendTokens[_dividendIndex]).transfer(_payee, claimAfterWithheld), "transfer failed");
+            require(IERC20Poly(dividendTokens[_dividendIndex]).transfer(_payee, claimAfterWithheld), "transfer failed");
             _dividend.dividendWithheld = _dividend.dividendWithheld.add(withheld);
             investorWithheld[_payee] = investorWithheld[_payee].add(withheld);
             emit ERC20DividendClaimed(_payee, _dividendIndex, dividendTokens[_dividendIndex], claim, withheld);
@@ -261,7 +261,7 @@ contract ERC20DividendCheckpoint is DividendCheckpoint {
         Dividend storage dividend = dividends[_dividendIndex];
         uint256 remainingAmount = dividend.amount.sub(dividend.claimedAmount);
         address owner = IOwnable(securityToken).owner();
-        require(IERC20(dividendTokens[_dividendIndex]).transfer(owner, remainingAmount), "transfer failed");
+        require(IERC20Poly(dividendTokens[_dividendIndex]).transfer(owner, remainingAmount), "transfer failed");
         emit ERC20DividendReclaimed(owner, _dividendIndex, dividendTokens[_dividendIndex], remainingAmount);
     }
 
@@ -275,7 +275,7 @@ contract ERC20DividendCheckpoint is DividendCheckpoint {
         uint256 remainingWithheld = dividend.dividendWithheld.sub(dividend.dividendWithheldReclaimed);
         dividend.dividendWithheldReclaimed = dividend.dividendWithheld;
         address owner = IOwnable(securityToken).owner();
-        require(IERC20(dividendTokens[_dividendIndex]).transfer(owner, remainingWithheld), "transfer failed");
+        require(IERC20Poly(dividendTokens[_dividendIndex]).transfer(owner, remainingWithheld), "transfer failed");
         emit ERC20DividendWithholdingWithdrawn(owner, _dividendIndex, dividendTokens[_dividendIndex], remainingWithheld);
     }
 

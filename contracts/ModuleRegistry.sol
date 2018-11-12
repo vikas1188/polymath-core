@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
+import {IERC20 as IERC20Poly} from "./interfaces/IERC20.sol";
 import "./interfaces/IModuleRegistry.sol";
 import "./interfaces/IModuleFactory.sol";
 import "./interfaces/ISecurityTokenRegistry.sol";
@@ -341,7 +341,7 @@ contract ModuleRegistry is IModuleRegistry, EternalStorage {
     */
     function reclaimERC20(address _tokenContract) external onlyOwner {
         require(_tokenContract != address(0), "0x address is invalid");
-        IERC20 token = IERC20(_tokenContract);
+        IERC20Poly token = IERC20Poly(_tokenContract);
         uint256 balance = token.balanceOf(address(this));
         require(token.transfer(owner(), balance),"token transfer failed");
     }
