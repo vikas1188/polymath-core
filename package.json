@@ -65,7 +65,7 @@
     "chalk": "^2.4.1",
     "coveralls": "^3.0.1",
     "ethereumjs-testrpc": "^6.0.3",
-    "ethers": "^4.0.7",
+    "ethers": "4.0.18",
     "fs": "0.0.2",
     "openzeppelin-solidity": "1.10.0",
     "readline-sync": "^1.4.9",
