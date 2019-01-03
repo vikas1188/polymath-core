@@ -33,7 +33,7 @@ let BN = Web3.utils.BN;
 const nullAddress = "0x0000000000000000000000000000000000000000";
 const cappedSTOSetupCost = new BN(20000).mul(new BN(10).pow(new BN(18))); // 20K POLY fee
 const usdTieredSTOSetupCost = new BN(100000).mul(new BN(10).pow(new BN(18))); // 100K POLY fee
-const initRegFee = new BN(250).mul(new BN(10).pow(new BN(18))); // 250 POLY fee for registering ticker or security token in registry
+const initRegFee = web3.utils.toHex(new BN(250).mul(new BN(10).pow(new BN(18)))); // 250 POLY fee for registering ticker or security token in registry
 let PolyToken;
 let UsdToken;
 let ETHOracle;
