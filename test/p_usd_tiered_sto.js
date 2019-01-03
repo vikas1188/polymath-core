@@ -303,20 +303,20 @@ contract("USDTieredSTO", async (accounts) => {
 
             _startTime.push(new BN(currentTime).add(new BN(duration.days(2))));
             _endTime.push(new BN(_startTime[stoId]).add(new BN(currentTime).add(new BN(duration.days(100)))));
-            _ratePerTier.push([new BN(10).mul(e16), new BN(15).mul(e16)]); // [ 0.10 USD/Token, 0.15 USD/Token ]
-            _ratePerTierDiscountPoly.push([new BN(10).mul(e16), new BN(15).mul(e16)]); // [ 0.10 USD/Token, 0.15 USD/Token ]
-            _tokensPerTierTotal.push([new BN(100000000).mul(new BN(e18)), new BN(200000000).mul(new BN(e18))]); // [ 100m Token, 200m Token ]
-            _tokensPerTierDiscountPoly.push([new BN(0), new BN(0)]); // [ new BN(0), 0 ]
-            _nonAccreditedLimitUSD.push(new BN(10000).mul(new BN(e18))); // 10k USD
-            _minimumInvestmentUSD.push(new BN(5).mul(e18)); // 5 USD
+            _ratePerTier.push([web3.utils.toHex(new BN(10).mul(e16)), web3.utils.toHex(new BN(15).mul(e16))]); // [ 0.10 USD/Token, 0.15 USD/Token ]
+            _ratePerTierDiscountPoly.push([web3.utils.toHex(new BN(10).mul(e16)), web3.utils.toHex(new BN(15).mul(e16))]); // [ 0.10 USD/Token, 0.15 USD/Token ]
+            _tokensPerTierTotal.push([web3.utils.toHex(new BN(100000000).mul(new BN(e18))), web3.utils.toHex(new BN(200000000).mul(new BN(e18)))]); // [ 100m Token, 200m Token ]
+            _tokensPerTierDiscountPoly.push([web3.utils.toHex(new BN(0)), web3.utils.toHex(new BN(0))]); // [ new BN(0), 0 ]
+            _nonAccreditedLimitUSD.push(web3.utils.toHex(new BN(10000).mul(new BN(e18)))); // 10k USD
+            _minimumInvestmentUSD.push(web3.utils.toHex(new BN(5).mul(e18))); // 5 USD
             _fundRaiseTypes.push([0, 1, 2]);
             _wallet.push(WALLET);
             _reserveWallet.push(RESERVEWALLET);
             _usdToken.push(I_DaiToken.address);
 
             let config = [
-                _startTime[stoId],
-                _endTime[stoId],
+                web3.utils.toHex(_startTime[stoId]),
+                web3.utils.toHex(_endTime[stoId]),
                 _ratePerTier[stoId],
                 _ratePerTierDiscountPoly[stoId],
                 _tokensPerTierTotal[stoId],
@@ -341,33 +341,33 @@ contract("USDTieredSTO", async (accounts) => {
             for (var i = 0; i < _ratePerTier[stoId].length; i++) {
                 assert.equal(
                     (await I_USDTieredSTO_Array[stoId].tiers.call(i))[0].toString(),
-                    _ratePerTier[stoId][i].toString(),
+                    web3.utils.hexToNumberString(_ratePerTier[stoId][i]),
                     "Incorrect _ratePerTier in config"
                 );
                 assert.equal(
                     (await I_USDTieredSTO_Array[stoId].tiers.call(i))[1].toString(),
-                    _ratePerTierDiscountPoly[stoId][i].toString(),
+                    web3.utils.hexToNumberString(_ratePerTierDiscountPoly[stoId][i]),
                     "Incorrect _ratePerTierDiscountPoly in config"
                 );
                 assert.equal(
                     (await I_USDTieredSTO_Array[stoId].tiers.call(i))[2].toString(),
-                    _tokensPerTierTotal[stoId][i].toString(),
+                    web3.utils.hexToNumberString(_tokensPerTierTotal[stoId][i]),
                     "Incorrect _tokensPerTierTotal in config"
                 );
                 assert.equal(
                     (await I_USDTieredSTO_Array[stoId].tiers.call(i))[3].toString(),
-                    _tokensPerTierDiscountPoly[stoId][i].toString(),
+                    web3.utils.hexToNumberString(_tokensPerTierDiscountPoly[stoId][i]),
                     "Incorrect _tokensPerTierDiscountPoly in config"
                 );
             }
             assert.equal(
                 (await I_USDTieredSTO_Array[stoId].nonAccreditedLimitUSD.call()).toString(),
-                _nonAccreditedLimitUSD[stoId].toString(),
+                web3.utils.hexToNumberString(_nonAccreditedLimitUSD[stoId]),
                 "Incorrect _nonAccreditedLimitUSD in config"
             );
             assert.equal(
                 (await I_USDTieredSTO_Array[stoId].minimumInvestmentUSD.call()).toString(),
-                _minimumInvestmentUSD[stoId].toString(),
+                web3.utils.hexToNumberString(_minimumInvestmentUSD[stoId]),
                 "Incorrect _minimumInvestmentUSD in config"
             );
             assert.equal(await I_USDTieredSTO_Array[stoId].wallet.call(), _wallet[stoId], "Incorrect _wallet in config");
@@ -388,8 +388,8 @@ contract("USDTieredSTO", async (accounts) => {
         it("Should attach the paid STO factory -- failed because of no tokens", async () => {
             let stoId = 0; // No discount
             let config = [
-                _startTime[stoId],
-                _endTime[stoId],
+                web3.utils.toHex(_startTime[stoId]),
+                web3.utils.toHex(_endTime[stoId]),
                 _ratePerTier[stoId],
                 _ratePerTierDiscountPoly[stoId],
                 _tokensPerTierTotal[stoId],
@@ -415,8 +415,8 @@ contract("USDTieredSTO", async (accounts) => {
             let snapId = await takeSnapshot();
             let stoId = 0; // No discount
             let config = [
-                _startTime[stoId],
-                _endTime[stoId],
+                web3.utils.toHex(_startTime[stoId]),
+                web3.utils.toHex(_endTime[stoId]),
                 _ratePerTier[stoId],
                 _ratePerTierDiscountPoly[stoId],
                 _tokensPerTierTotal[stoId],
@@ -472,40 +472,40 @@ contract("USDTieredSTO", async (accounts) => {
             _startTime.push(new BN(currentTime).add(new BN(duration.days(2))));
             _endTime.push(new BN(_startTime[stoId]).add(new BN(currentTime).add(new BN(duration.days(100)))));
             _ratePerTier.push([
-                new BN(10).mul(e16),
-                new BN(15).mul(e16),
-                new BN(15).mul(e16),
-                new BN(15).mul(e16),
-                new BN(15).mul(e16),
-                new BN(15).mul(e16)
+                web3.utils.toHex(new BN(10).mul(e16)),
+                web3.utils.toHex(new BN(15).mul(e16)),
+                web3.utils.toHex(new BN(15).mul(e16)),
+                web3.utils.toHex(new BN(15).mul(e16)),
+                web3.utils.toHex(new BN(15).mul(e16)),
+                web3.utils.toHex(new BN(15).mul(e16))
             ]);
             _ratePerTierDiscountPoly.push([
-                new BN(10).mul(e16),
-                new BN(15).mul(e16),
-                new BN(15).mul(e16),
-                new BN(15).mul(e16),
-                new BN(15).mul(e16),
-                new BN(15).mul(e16)
+                web3.utils.toHex(new BN(10).mul(e16)),
+                web3.utils.toHex(new BN(15).mul(e16)),
+                web3.utils.toHex(new BN(15).mul(e16)),
+                web3.utils.toHex(new BN(15).mul(e16)),
+                web3.utils.toHex(new BN(15).mul(e16)),
+                web3.utils.toHex(new BN(15).mul(e16))
             ]);
             _tokensPerTierTotal.push([
-                new BN(5).mul(e18),
-                new BN(10).mul(e18),
-                new BN(10).mul(e18),
-                new BN(10).mul(e18),
-                new BN(10).mul(e18),
-                new BN(50).mul(e18)
+                web3.utils.toHex(new BN(5).mul(e18)),
+                web3.utils.toHex(new BN(10).mul(e18)),
+                web3.utils.toHex(new BN(10).mul(e18)),
+                web3.utils.toHex(new BN(10).mul(e18)),
+                web3.utils.toHex(new BN(10).mul(e18)),
+                web3.utils.toHex(new BN(50).mul(e18))
             ]);
-            _tokensPerTierDiscountPoly.push([new BN(0), new BN(0), new BN(0), new BN(0), new BN(0), new BN(0)]);
-            _nonAccreditedLimitUSD.push(new BN(10000).mul(new BN(e18)));
-            _minimumInvestmentUSD.push(new BN(0));
+            _tokensPerTierDiscountPoly.push([web3.utils.toHex(new BN(0)), web3.utils.toHex(new BN(0)), web3.utils.toHex(new BN(0)), web3.utils.toHex(new BN(0)), web3.utils.toHex(new BN(0)), web3.utils.toHex(new BN(0))]);
+            _nonAccreditedLimitUSD.push(web3.utils.toHex(new BN(10000).mul(new BN(e18))));
+            _minimumInvestmentUSD.push(web3.utils.toHex(new BN(0)));
             _fundRaiseTypes.push([0, 1, 2]);
             _wallet.push(WALLET);
             _reserveWallet.push(RESERVEWALLET);
             _usdToken.push(I_DaiToken.address);
 
             let config = [
-                _startTime[stoId],
-                _endTime[stoId],
+                web3.utils.toHex(_startTime[stoId]),
+                web3.utils.toHex(_endTime[stoId]),
                 _ratePerTier[stoId],
                 _ratePerTierDiscountPoly[stoId],
                 _tokensPerTierTotal[stoId],
@@ -530,33 +530,33 @@ contract("USDTieredSTO", async (accounts) => {
             for (var i = 0; i < _ratePerTier[stoId].length; i++) {
                 assert.equal(
                     (await I_USDTieredSTO_Array[stoId].tiers.call(i))[0].toString(),
-                    _ratePerTier[stoId][i].toString(),
+                    web3.utils.hexToNumberString(_ratePerTier[stoId][i]),
                     "Incorrect _ratePerTier in config"
                 );
                 assert.equal(
                     (await I_USDTieredSTO_Array[stoId].tiers.call(i))[1].toString(),
-                    _ratePerTierDiscountPoly[stoId][i].toString(),
+                    web3.utils.hexToNumberString(_ratePerTierDiscountPoly[stoId][i]),
                     "Incorrect _ratePerTierDiscountPoly in config"
                 );
                 assert.equal(
                     (await I_USDTieredSTO_Array[stoId].tiers.call(i))[2].toString(),
-                    _tokensPerTierTotal[stoId][i].toString(),
+                    web3.utils.hexToNumberString(_tokensPerTierTotal[stoId][i]),
                     "Incorrect _tokensPerTierTotal in config"
                 );
                 assert.equal(
                     (await I_USDTieredSTO_Array[stoId].tiers.call(i))[3].toString(),
-                    _tokensPerTierDiscountPoly[stoId][i].toString(),
+                    web3.utils.hexToNumberString(_tokensPerTierDiscountPoly[stoId][i]),
                     "Incorrect _tokensPerTierDiscountPoly in config"
                 );
             }
             assert.equal(
                 (await I_USDTieredSTO_Array[stoId].nonAccreditedLimitUSD.call()).toString(),
-                _nonAccreditedLimitUSD[stoId].toString(),
+                web3.utils.hexToNumberString(_nonAccreditedLimitUSD[stoId]),
                 "Incorrect _nonAccreditedLimitUSD in config"
             );
             assert.equal(
                 (await I_USDTieredSTO_Array[stoId].minimumInvestmentUSD.call()).toString(),
-                _minimumInvestmentUSD[stoId].toString(),
+                web3.utils.hexToNumberString(_minimumInvestmentUSD[stoId]),
                 "Incorrect _minimumInvestmentUSD in config"
             );
             assert.equal(await I_USDTieredSTO_Array[stoId].wallet.call(), _wallet[stoId], "Incorrect _wallet in config");
@@ -578,19 +578,19 @@ contract("USDTieredSTO", async (accounts) => {
             let stoId = 2; // Poly discount
             _startTime.push(new BN(currentTime).add(new BN(duration.days(2))));
             _endTime.push(new BN(_startTime[stoId]).add(new BN(currentTime).add(new BN(duration.days(100)))));
-            _ratePerTier.push([new BN(1).mul(e18), new BN(150).mul(e16)]); // [ 1 USD/Token, 1.5 USD/Token ]
-            _ratePerTierDiscountPoly.push([new BN(50).mul(e16), new BN(1).mul(e18)]); // [ 0.5 USD/Token, 1.5 USD/Token ]
-            _tokensPerTierTotal.push([new BN(100).mul(e18), new BN(50).mul(e18)]); // [ 100 Token, 50 Token ]
-            _tokensPerTierDiscountPoly.push([new BN(100).mul(e18), new BN(25).mul(e18)]); // [ 100 Token, 25 Token ]
-            _nonAccreditedLimitUSD.push(new BN(25).mul(e18)); // [ 25 USD ]
-            _minimumInvestmentUSD.push(new BN(5));
+            _ratePerTier.push([web3.utils.toHex(new BN(1).mul(e18)), web3.utils.toHex(new BN(150).mul(e16))]); // [ 1 USD/Token, 1.5 USD/Token ]
+            _ratePerTierDiscountPoly.push([web3.utils.toHex(new BN(50).mul(e16)), web3.utils.toHex(new BN(1).mul(e18))]); // [ 0.5 USD/Token, 1.5 USD/Token ]
+            _tokensPerTierTotal.push([web3.utils.toHex(new BN(100).mul(e18)), web3.utils.toHex(new BN(50).mul(e18))]); // [ 100 Token, 50 Token ]
+            _tokensPerTierDiscountPoly.push([web3.utils.toHex(new BN(100).mul(e18)), web3.utils.toHex(new BN(25).mul(e18))]); // [ 100 Token, 25 Token ]
+            _nonAccreditedLimitUSD.push(web3.utils.toHex(new BN(25).mul(e18))); // [ 25 USD ]
+            _minimumInvestmentUSD.push(web3.utils.toHex(new BN(5)));
             _fundRaiseTypes.push([0, 1, 2]);
             _wallet.push(WALLET);
             _reserveWallet.push(RESERVEWALLET);
             _usdToken.push(I_DaiToken.address);
             let config = [
-                _startTime[stoId],
-                _endTime[stoId],
+                web3.utils.toHex(_startTime[stoId]),
+                web3.utils.toHex(_endTime[stoId]),
                 _ratePerTier[stoId],
                 _ratePerTierDiscountPoly[stoId],
                 _tokensPerTierTotal[stoId],
@@ -615,20 +615,20 @@ contract("USDTieredSTO", async (accounts) => {
 
             _startTime.push(new BN(currentTime).add(new BN(duration.days(0.1))));
             _endTime.push(new BN(_startTime[stoId]).add(new BN(currentTime).add(new BN(duration.days(0.1)))));
-            _ratePerTier.push([new BN(10).mul(e16), new BN(15).mul(e16)]);
-            _ratePerTierDiscountPoly.push([new BN(10).mul(e16), new BN(12).mul(e16)]);
-            _tokensPerTierTotal.push([new BN(100).mul(e18), new BN(200).mul( e18)]);
-            _tokensPerTierDiscountPoly.push([new BN(0), new BN(50).mul( e18)]);
-            _nonAccreditedLimitUSD.push(new BN(10000).mul(new BN(e18)));
-            _minimumInvestmentUSD.push(new BN(0));
+            _ratePerTier.push([web3.utils.toHex(new BN(10).mul(e16)), web3.utils.toHex(new BN(15).mul(e16))]);
+            _ratePerTierDiscountPoly.push([web3.utils.toHex(new BN(10).mul(e16)), web3.utils.toHex(new BN(12).mul(e16))]);
+            _tokensPerTierTotal.push([web3.utils.toHex(new BN(100).mul(e18)), web3.utils.toHex(new BN(200).mul( e18))]);
+            _tokensPerTierDiscountPoly.push([web3.utils.toHex(new BN(0)), web3.utils.toHex(new BN(50).mul( e18))]);
+            _nonAccreditedLimitUSD.push(web3.utils.toHex(new BN(10000).mul(new BN(e18))));
+            _minimumInvestmentUSD.push(web3.utils.toHex(new BN(0)));
             _fundRaiseTypes.push([0, 1, 2]);
             _wallet.push(WALLET);
             _reserveWallet.push(RESERVEWALLET);
             _usdToken.push(I_DaiToken.address);
 
             let config = [
-                _startTime[stoId],
-                _endTime[stoId],
+                web3.utils.toHex(_startTime[stoId]),
+                web3.utils.toHex(_endTime[stoId]),
                 _ratePerTier[stoId],
                 _ratePerTierDiscountPoly[stoId],
                 _tokensPerTierTotal[stoId],
@@ -654,20 +654,20 @@ contract("USDTieredSTO", async (accounts) => {
 
             _startTime.push(new BN(currentTime).add(new BN(duration.days(2))));
             _endTime.push(new BN(_startTime[stoId]).add(new BN(currentTime).add(new BN(duration.days(100)))));
-            _ratePerTier.push([new BN(1).mul(e18), new BN(150).mul(e16)]); // [ 1 USD/Token, 1.5 USD/Token ]
-            _ratePerTierDiscountPoly.push([new BN(50).mul(e16), new BN(1).mul(e18)]); // [ 0.5 USD/Token, 1.5 USD/Token ]
-            _tokensPerTierTotal.push([new BN(100).mul(e18), new BN(50).mul( e18)]); // [ 100 Token, 50 Token ]
-            _tokensPerTierDiscountPoly.push([new BN(100).mul(e18), new BN(25).mul(e18)]); // [ 100 Token, 25 Token ]
-            _nonAccreditedLimitUSD.push(new BN(25).mul(e18)); // [ 25 USD ]
-            _minimumInvestmentUSD.push(new BN(5));
+            _ratePerTier.push([web3.utils.toHex(new BN(1).mul(e18)), web3.utils.toHex(new BN(150).mul(e16))]); // [ 1 USD/Token, 1.5 USD/Token ]
+            _ratePerTierDiscountPoly.push([web3.utils.toHex(new BN(50).mul(e16)), web3.utils.toHex(new BN(1).mul(e18))]); // [ 0.5 USD/Token, 1.5 USD/Token ]
+            _tokensPerTierTotal.push([web3.utils.toHex(new BN(100).mul(e18)), web3.utils.toHex(new BN(50).mul( e18))]); // [ 100 Token, 50 Token ]
+            _tokensPerTierDiscountPoly.push([web3.utils.toHex(new BN(100).mul(e18)), web3.utils.toHex(new BN(25).mul(e18))]); // [ 100 Token, 25 Token ]
+            _nonAccreditedLimitUSD.push(web3.utils.toHex(new BN(25).mul(e18))); // [ 25 USD ]
+            _minimumInvestmentUSD.push(web3.utils.toHex(new BN(5)));
             _fundRaiseTypes.push([0, 1, 2]);
             _wallet.push(WALLET);
             _reserveWallet.push(RESERVEWALLET);
             _usdToken.push(I_DaiToken.address);
 
             let config = [
-                _startTime[stoId],
-                _endTime[stoId],
+                web3.utils.toHex(_startTime[stoId]),
+                web3.utils.toHex(_endTime[stoId]),
                 _ratePerTier[stoId],
                 _ratePerTierDiscountPoly[stoId],
                 _tokensPerTierTotal[stoId],

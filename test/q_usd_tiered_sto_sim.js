@@ -277,20 +277,20 @@ contract("USDTieredSTO Sim", async (accounts) => {
 
             _startTime.push(new BN(currentTime).add(new BN(duration.days(2))));
             _endTime.push(new BN(_startTime[stoId]).add(new BN(currentTime).add(new BN(duration.days(100)))));
-            _ratePerTier.push([new BN(50).mul(e16), new BN(130).mul(e16), new BN(170).mul(e16)]); // [ 0.05 USD/Token, 0.10 USD/Token, 0.15 USD/Token ]
-            _ratePerTierDiscountPoly.push([new BN(50).mul(e16), new BN(80).mul(e16), new BN(130).mul(e16)]); // [ 0.05 USD/Token, 0.08 USD/Token, 0.13 USD/Token ]
-            _tokensPerTierTotal.push([new BN(200).mul(e18), new BN(500).mul(e18), new BN(300).mul(e18)]); // [ 1000 Token, 2000 Token, 1500 Token ]
-            _tokensPerTierDiscountPoly.push([new BN(0), new BN(50).mul(e18), new BN(300).mul(e18)]); // [ 0 Token, 1000 Token, 1500 Token ]
-            _nonAccreditedLimitUSD.push(new BN(10).mul(e18)); // 20 USD
-            _minimumInvestmentUSD.push(new BN(0)); // 1 wei USD
+            _ratePerTier.push([web3.utils.toHex(new BN(50).mul(e16)), web3.utils.toHex(new BN(130).mul(e16)), web3.utils.toHex(new BN(170).mul(e16))]); // [ 0.05 USD/Token, 0.10 USD/Token, 0.15 USD/Token ]
+            _ratePerTierDiscountPoly.push([web3.utils.toHex(new BN(50).mul(e16)), web3.utils.toHex(new BN(80).mul(e16)), web3.utils.toHex(new BN(130).mul(e16))]); // [ 0.05 USD/Token, 0.08 USD/Token, 0.13 USD/Token ]
+            _tokensPerTierTotal.push([web3.utils.toHex(new BN(200).mul(e18)), web3.utils.toHex(new BN(500).mul(e18)), web3.utils.toHex(new BN(300).mul(e18))]); // [ 1000 Token, 2000 Token, 1500 Token ]
+            _tokensPerTierDiscountPoly.push([web3.utils.toHex(new BN(0)), web3.utils.toHex(new BN(50).mul(e18)), web3.utils.toHex(new BN(300).mul(e18))]); // [ 0 Token, 1000 Token, 1500 Token ]
+            _nonAccreditedLimitUSD.push(web3.utils.toHex(new BN(10).mul(e18))); // 20 USD
+            _minimumInvestmentUSD.push(web3.utils.toHex(new BN(0))); // 1 wei USD
             _fundRaiseTypes.push([0, 1, 2]);
             _wallet.push(WALLET);
             _reserveWallet.push(RESERVEWALLET);
             _usdToken.push(I_DaiToken.address);
 
             let config = [
-                _startTime[stoId],
-                _endTime[stoId],
+                web3.utils.toHex(_startTime[stoId]),
+                web3.utils.toHex(_endTime[stoId]),
                 _ratePerTier[stoId],
                 _ratePerTierDiscountPoly[stoId],
                 _tokensPerTierTotal[stoId],
@@ -315,33 +315,33 @@ contract("USDTieredSTO Sim", async (accounts) => {
             for (var i = 0; i < _ratePerTier[stoId].length; i++) {
                 assert.equal(
                     (await I_USDTieredSTO_Array[stoId].tiers.call(i))[0].toString(),
-                    _ratePerTier[stoId][i].toString(),
+                    web3.utils.hexToNumberString(_ratePerTier[stoId][i]),
                     "Incorrect _ratePerTier in config"
                 );
                 assert.equal(
                     (await I_USDTieredSTO_Array[stoId].tiers.call(i))[1].toString(),
-                    _ratePerTierDiscountPoly[stoId][i].toString(),
+                    web3.utils.hexToNumberString(_ratePerTierDiscountPoly[stoId][i]),
                     "Incorrect _ratePerTierDiscountPoly in config"
                 );
                 assert.equal(
                     (await I_USDTieredSTO_Array[stoId].tiers.call(i))[2].toString(),
-                    _tokensPerTierTotal[stoId][i].toString(),
+                    web3.utils.hexToNumberString(_tokensPerTierTotal[stoId][i]),
                     "Incorrect _tokensPerTierTotal in config"
                 );
                 assert.equal(
                     (await I_USDTieredSTO_Array[stoId].tiers.call(i))[3].toString(),
-                    _tokensPerTierDiscountPoly[stoId][i].toString(),
+                    web3.utils.hexToNumberString(_tokensPerTierDiscountPoly[stoId][i].toString()),
                     "Incorrect _tokensPerTierDiscountPoly in config"
                 );
             }
             assert.equal(
                 (await I_USDTieredSTO_Array[stoId].nonAccreditedLimitUSD.call()).toString(),
-                _nonAccreditedLimitUSD[stoId].toString(),
+                web3.utils.hexToNumberString(_nonAccreditedLimitUSD[stoId]),
                 "Incorrect _nonAccreditedLimitUSD in config"
             );
             assert.equal(
                 (await I_USDTieredSTO_Array[stoId].minimumInvestmentUSD.call()).toString(),
-                _minimumInvestmentUSD[stoId].toString(),
+                web3.utils.hexToNumberString(_minimumInvestmentUSD[stoId]),
                 "Incorrect _minimumInvestmentUSD in config"
             );
             assert.equal(await I_USDTieredSTO_Array[stoId].wallet.call(), _wallet[stoId], "Incorrect _wallet in config");
