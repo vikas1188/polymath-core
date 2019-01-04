@@ -697,8 +697,8 @@ contract("USDTieredSTO", async (accounts) => {
             let tokensPerTierDiscountPoly = [10];
             let config = [
                 [
-                    _startTime[stoId],
-                    _endTime[stoId],
+                    web3.utils.toHex(_startTime[stoId]),
+                    web3.utils.toHex(_endTime[stoId]),
                     ratePerTier,
                     _ratePerTierDiscountPoly[stoId],
                     _tokensPerTierTotal[stoId],
@@ -711,8 +711,8 @@ contract("USDTieredSTO", async (accounts) => {
                     _usdToken[stoId]
                 ],
                 [
-                    _startTime[stoId],
-                    _endTime[stoId],
+                    web3.utils.toHex(_startTime[stoId]),
+                    web3.utils.toHex(_endTime[stoId]),
                     _ratePerTier[stoId],
                     ratePerTierDiscountPoly,
                     _tokensPerTierTotal[stoId],
@@ -725,8 +725,8 @@ contract("USDTieredSTO", async (accounts) => {
                     _usdToken[stoId]
                 ],
                 [
-                    _startTime[stoId],
-                    _endTime[stoId],
+                    web3.utils.toHex(_startTime[stoId]),
+                    web3.utils.toHex(_endTime[stoId]),
                     _ratePerTier[stoId],
                     _ratePerTierDiscountPoly[stoId],
                     tokensPerTierTotal,
@@ -739,8 +739,8 @@ contract("USDTieredSTO", async (accounts) => {
                     _usdToken[stoId]
                 ],
                 [
-                    _startTime[stoId],
-                    _endTime[stoId],
+                    web3.utils.toHex(_startTime[stoId]),
+                    web3.utils.toHex(_endTime[stoId]),
                     _ratePerTier[stoId],
                     _ratePerTierDiscountPoly[stoId],
                     _tokensPerTierTotal[stoId],
@@ -763,10 +763,10 @@ contract("USDTieredSTO", async (accounts) => {
         it("Should fail because rate of token should be greater than 0", async () => {
             let stoId = 0;
 
-            let ratePerTier = [new BN(10).mul(e16), new BN(0)];
+            let ratePerTier = [web3.utils.toHex(new BN(10).mul(e16)), web3.utils.toHex(new BN(0))];
             let config = [
-                _startTime[stoId],
-                _endTime[stoId],
+                web3.utils.toHex(_startTime[stoId]),
+                web3.utils.toHex(_endTime[stoId]),
                 ratePerTier,
                 _ratePerTierDiscountPoly[stoId],
                 _tokensPerTierTotal[stoId],
@@ -788,8 +788,8 @@ contract("USDTieredSTO", async (accounts) => {
 
             let wallet = address_zero;
             let config = [
-                _startTime[stoId],
-                _endTime[stoId],
+                web3.utils.toHex(_startTime[stoId]),
+                web3.utils.toHex(_endTime[stoId]),
                 _ratePerTier[stoId],
                 _ratePerTierDiscountPoly[stoId],
                 _tokensPerTierTotal[stoId],
@@ -811,8 +811,8 @@ contract("USDTieredSTO", async (accounts) => {
 
             let reserveWallet = address_zero;
             let config = [
-                _startTime[stoId],
-                _endTime[stoId],
+                web3.utils.toHex(_startTime[stoId]),
+                web3.utils.toHex(_endTime[stoId]),
                 _ratePerTier[stoId],
                 _ratePerTierDiscountPoly[stoId],
                 _tokensPerTierTotal[stoId],
@@ -821,7 +821,8 @@ contract("USDTieredSTO", async (accounts) => {
                 _minimumInvestmentUSD[stoId],
                 _fundRaiseTypes[stoId],
                 _wallet[stoId],
-                reserveWallet
+                reserveWallet,
+                _usdToken[stoId]
             ];
             let bytesSTO = web3.eth.abi.encodeFunctionCall(functionSignature, config);
 
@@ -834,8 +835,8 @@ contract("USDTieredSTO", async (accounts) => {
             let startTime = await latestTime() + duration.days(35);
             let endTime = await latestTime() + duration.days(1);
             let config = [
-                startTime,
-                endTime,
+                web3.utils.toHex(startTime),
+                web3.utils.toHex(endTime),
                 _ratePerTier[stoId],
                 _ratePerTierDiscountPoly[stoId],
                 _tokensPerTierTotal[stoId],
@@ -858,8 +859,8 @@ contract("USDTieredSTO", async (accounts) => {
             let startTime = await latestTime() - duration.days(35);
             let endTime = startTime + duration.days(50);
             let config = [
-                startTime,
-                endTime,
+                web3.utils.toHex(startTime),
+                web3.utils.toHex(endTime),
                 _ratePerTier[stoId],
                 _ratePerTierDiscountPoly[stoId],
                 _tokensPerTierTotal[stoId],
@@ -2098,7 +2099,7 @@ contract("USDTieredSTO", async (accounts) => {
             let stoId = 0;
             let tierId = 0;
             console.log("Current investment: " + (await I_USDTieredSTO_Array[stoId].investorInvestedUSD.call(NONACCREDITED1)).toString());
-            await I_USDTieredSTO_Array[stoId].changeNonAccreditedLimit([NONACCREDITED1], [_nonAccreditedLimitUSD[stoId].div(new BN(2))], {
+            await I_USDTieredSTO_Array[stoId].changeNonAccreditedLimit([NONACCREDITED1], [new BN(_nonAccreditedLimitUSD[stoId]).div(new BN(2))], {
                 from: ISSUER
             });
             console.log("Current limit: " + (await I_USDTieredSTO_Array[stoId].nonAccreditedLimitUSDOverride(NONACCREDITED1)).toString());
@@ -2157,10 +2158,9 @@ contract("USDTieredSTO", async (accounts) => {
 
             assert.equal(
                 final_TokenSupply.toString(),
-                init_TokenSupply
+                web3.utils.hexToNumberString(init_TokenSupply
                     .add(investment_Token)
-                    .sub(refund_Token)
-                    .toString(),
+                    .sub(refund_Token)),
                 "Token Supply not changed as expected"
             );
             assert.equal(
