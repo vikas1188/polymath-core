@@ -1,26 +1,9 @@
 pragma solidity ^0.4.24;
 
 import "../../interfaces/IHistory.sol";
+import "./PartialHistoryStorage.sol";
 
-contract PartialHistory is IHistory {
-
-    // Structures to maintain checkpoints of balances for governance / dividends
-    struct Checkpoint {
-        uint256 checkpointId;
-        uint256 value;
-    }
-
-    // Value of current checkpoint
-    uint256 public currentCheckpointId;
-
-    // List of checkpoints that relate to total supply
-    Checkpoint[] checkpointTotalSupply;
-
-    // Times at which each checkpoint was created
-    uint256[] checkpointTimes;
-
-    // Map each investor to a series of checkpoints
-    mapping (address => Checkpoint[]) checkpointBalances;
+contract PartialHistory is PartialHistoryStorage, IHistory {
 
     function balanceOfAt(address _investor, uint256 _checkpointId, uint256 _currentBalance) external view returns(uint256) {
       require(_checkpointId <= currentCheckpointId);

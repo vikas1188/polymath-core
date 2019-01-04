@@ -47,14 +47,9 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
     uint8 constant MINT_KEY = 3;
     uint8 constant CHECKPOINT_KEY = 4;
     uint8 constant BURN_KEY = 5;
-    /* uint8 constant HISTORY_KEY = 6;     */
+    uint8 constant HISTORY_KEY = 6;
 
     uint256 public granularity;
-
-    // Value of current checkpoint
-    /* uint256 public currentCheckpointId; */
-
-    IHistory public history;
 
     // Used to temporarily halt all transactions
     bool public transfersFrozen;
@@ -76,15 +71,6 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
 
     // Records added module names - module list should be order agnostic!
     mapping (bytes32 => address[]) names;
-
-    // Map each investor to a series of checkpoints
-    /* mapping (address => TokenLib.Checkpoint[]) checkpointBalances; */
-
-    // List of checkpoints that relate to total supply
-    /* TokenLib.Checkpoint[] checkpointTotalSupply; */
-
-    // Times at which each checkpoint was created
-    /* uint256[] checkpointTimes; */
 
     // Emit at the time when module get added
     event ModuleAdded(
@@ -321,6 +307,16 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
         delete modulesToData[_module];
     }
 
+    function _activeHistoryModule() internal view returns(bool, address) {
+      if (modules[HISTORY_KEY].length == 0) return (false, address(0));
+      return (true, modules[HISTORY_KEY][modules[HISTORY_KEY].length - 1]);
+    }
+
+    function _historyModule() internal view returns(address) {
+      require(modules[HISTORY_KEY].length != 0);
+      return modules[HISTORY_KEY][modules[HISTORY_KEY].length - 1];
+    }
+
     /**
     * @notice Internal - Removes a module attached to the SecurityToken by index
     */
@@ -522,8 +518,10 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
      * @notice Internal - adjusts totalSupply at checkpoint after minting or burning tokens
      */
     function _adjustTotalSupplyCheckpoints() internal {
-        history.adjustTotalSupplyCheckpoint(totalSupply());
-        /* TokenLib.adjustCheckpoints(checkpointTotalSupply, totalSupply(), currentCheckpointId); */
+        (bool isActive, address history) = _activeHistoryModule();
+        if (isActive) {
+            IHistory(history).adjustTotalSupplyCheckpoint(totalSupply());
+        }
     }
 
     /**
@@ -531,8 +529,10 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
      * @param _investor address of the token holder affected
      */
     function _adjustBalanceCheckpoints(address _investor) internal {
-        history.adjustBalanceCheckpoint(_investor, balanceOf(_investor));
-        /* TokenLib.adjustCheckpoints(checkpointBalances[_investor], balanceOf(_investor), currentCheckpointId); */
+        (bool isActive, address history) = _activeHistoryModule();
+        if (isActive) {
+            IHistory(history).adjustBalanceCheckpoint(_investor, balanceOf(_investor));
+        }
     }
 
     /**
@@ -779,7 +779,7 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
      * @return uint256
      */
     function createCheckpoint() external onlyModuleOrOwner(CHECKPOINT_KEY) returns(uint256) {
-        uint256 checkpointId = history.createCheckpoint();
+        uint256 checkpointId = IHistory(_historyModule()).createCheckpoint();
         emit CheckpointCreated(checkpointId, now);
         return checkpointId;
     }
@@ -789,7 +789,7 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
      * @return List of checkpoint times
      */
     function getCheckpointTimes() external view returns(uint256[]) {
-        return history.getCheckpointTimes();
+        return IHistory(_historyModule()).getCheckpointTimes();
     }
 
     /**
@@ -799,7 +799,7 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
      */
     function totalSupplyAt(uint256 _checkpointId) external view returns(uint256) {
         /* require(_checkpointId <= currentCheckpointId); */
-        return history.totalSupplyAt(_checkpointId, totalSupply());
+        return IHistory(_historyModule()).totalSupplyAt(_checkpointId, totalSupply());
         /* return TokenLib.getValueAt(checkpointTotalSupply, _checkpointId, totalSupply()); */
     }
 
@@ -810,12 +810,12 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
      */
     function balanceOfAt(address _investor, uint256 _checkpointId) public view returns(uint256) {
         /* require(_checkpointId <= currentCheckpointId); */
-        return history.balanceOfAt(_investor, _checkpointId, balanceOf(_investor));
+        return IHistory(_historyModule()).balanceOfAt(_investor, _checkpointId, balanceOf(_investor));
         /* return TokenLib.getValueAt(checkpointBalances[_investor], _checkpointId, balanceOf(_investor)); */
     }
 
     function getCurrentCheckpointId() external view returns(uint256) {
-        return history.getCurrentCheckpointId();
+        return IHistory(_historyModule()).getCurrentCheckpointId();
     }
 
     /**

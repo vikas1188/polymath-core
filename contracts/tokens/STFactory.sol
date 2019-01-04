@@ -9,9 +9,11 @@ import "../interfaces/ISTFactory.sol";
 contract STFactory is ISTFactory {
 
     address public transferManagerFactory;
+    address public partialHistoryFactory;
 
-    constructor (address _transferManagerFactory) public {
+    constructor (address _transferManagerFactory, address _partialHistoryFactory) public {
         transferManagerFactory = _transferManagerFactory;
+        partialHistoryFactory = _partialHistoryFactory;
     }
 
     /**
@@ -36,6 +38,7 @@ contract STFactory is ISTFactory {
             _polymathRegistry
         );
         SecurityToken(newSecurityTokenAddress).addModule(transferManagerFactory, "", 0, 0);
+        SecurityToken(newSecurityTokenAddress).addModule(partialHistoryFactory, "", 0, 0);
         SecurityToken(newSecurityTokenAddress).transferOwnership(_issuer);
         return newSecurityTokenAddress;
     }

@@ -1,6 +1,8 @@
 const PolymathRegistry = artifacts.require('./PolymathRegistry.sol')
 const GeneralTransferManagerFactory = artifacts.require('./GeneralTransferManagerFactory.sol')
 const GeneralTransferManagerLogic = artifacts.require('./GeneralTransferManager.sol')
+const PartialHistoryFactory = artifacts.require('./PartialHistoryFactory.sol')
+const PartialHistoryLogic = artifacts.require('./PartialHistory.sol')
 const GeneralPermissionManagerLogic = artifacts.require('./GeneralPermissionManager.sol')
 const GeneralPermissionManagerFactory = artifacts.require('./GeneralPermissionManagerFactory.sol')
 const PercentageTransferManagerLogic = artifacts.require('./PercentageTransferManager.sol')
@@ -160,6 +162,10 @@ module.exports = function (deployer, network, accounts) {
     // manager attach with the securityToken contract at the time of deployment)
     return deployer.deploy(GeneralTransferManagerLogic, "0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", {from: PolymathAccount});
   }).then(() => {
+    // B) Deploy the PartialHistoryLogic Contract (Factory used to generate the PartialHistory contract and this
+    // manager attach with the securityToken contract at the time of deployment)
+    return deployer.deploy(PartialHistoryLogic, "0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", {from: PolymathAccount});
+  }).then(() => {
     // B) Deploy the GeneralPermissionManagerLogic Contract (Factory used to generate the GeneralPermissionManager contract and this
     // manager attach with the securityToken contract at the time of deployment)
     return deployer.deploy(GeneralPermissionManagerLogic, "0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", {from: PolymathAccount});
@@ -196,6 +202,10 @@ module.exports = function (deployer, network, accounts) {
     // manager attach with the securityToken contract at the time of deployment)
     return deployer.deploy(GeneralTransferManagerFactory, 0, 0, 0, GeneralTransferManagerLogic.address, {from: PolymathAccount});
   }).then(() => {
+    // B) Deploy the GeneralTransferManagerFactory Contract (Factory used to generate the GeneralTransferManager contract and this
+    // manager attach with the securityToken contract at the time of deployment)
+    return deployer.deploy(PartialHistoryFactory, 0, 0, 0, PartialHistoryLogic.address, {from: PolymathAccount});
+  }).then(() => {
     // C) Deploy the GeneralPermissionManagerFactory Contract (Factory used to generate the GeneralPermissionManager contract and
     // this manager attach with the securityToken contract at the time of deployment)
     return deployer.deploy(GeneralPermissionManagerFactory, 0, 0, 0, GeneralPermissionManagerLogic.address, {from: PolymathAccount});
@@ -221,7 +231,7 @@ module.exports = function (deployer, network, accounts) {
     return deployer.deploy(ManualApprovalTransferManagerFactory, 0, 0, 0, ManualApprovalTransferManagerLogic.address, {from: PolymathAccount});
   }).then(() => {
     // H) Deploy the STVersionProxy001 Contract which contains the logic of deployment of securityToken.
-    return deployer.deploy(STFactory, GeneralTransferManagerFactory.address, {from: PolymathAccount});
+    return deployer.deploy(STFactory, GeneralTransferManagerFactory.address, PartialHistoryFactory.address, {from: PolymathAccount});
   }).then(() => {
     // K) Deploy the FeatureRegistry contract to control feature switches
     return deployer.deploy(FeatureRegistry, PolymathRegistry.address, {from: PolymathAccount});
