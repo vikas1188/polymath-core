@@ -7,6 +7,7 @@ import "../interfaces/IModuleFactory.sol";
 import "../interfaces/IModuleRegistry.sol";
 import "../interfaces/IFeatureRegistry.sol";
 import "../interfaces/ITransferManager.sol";
+import "../interfaces/IHistory.sol";
 import "../RegistryUpdater.sol";
 import "../libraries/Util.sol";
 import "openzeppelin-solidity/contracts/utils/ReentrancyGuard.sol";
@@ -46,11 +47,14 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
     uint8 constant MINT_KEY = 3;
     uint8 constant CHECKPOINT_KEY = 4;
     uint8 constant BURN_KEY = 5;
+    /* uint8 constant HISTORY_KEY = 6;     */
 
     uint256 public granularity;
 
     // Value of current checkpoint
-    uint256 public currentCheckpointId;
+    /* uint256 public currentCheckpointId; */
+
+    IHistory public history;
 
     // Used to temporarily halt all transactions
     bool public transfersFrozen;
@@ -74,13 +78,13 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
     mapping (bytes32 => address[]) names;
 
     // Map each investor to a series of checkpoints
-    mapping (address => TokenLib.Checkpoint[]) checkpointBalances;
+    /* mapping (address => TokenLib.Checkpoint[]) checkpointBalances; */
 
     // List of checkpoints that relate to total supply
-    TokenLib.Checkpoint[] checkpointTotalSupply;
+    /* TokenLib.Checkpoint[] checkpointTotalSupply; */
 
     // Times at which each checkpoint was created
-    uint256[] checkpointTimes;
+    /* uint256[] checkpointTimes; */
 
     // Emit at the time when module get added
     event ModuleAdded(
@@ -228,7 +232,7 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
         address _moduleFactory,
         bytes _data,
         uint256 _maxCost,
-        uint256 _budget, 
+        uint256 _budget,
         bytes32 _label
     ) public onlyOwner nonReentrant {
         //Check that the module factory exists in the ModuleRegistry - will throw otherwise
@@ -269,7 +273,7 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
         bytes _data,
         uint256 _maxCost,
         uint256 _budget
-    ) external { 
+    ) external {
         addModuleWithLabel(_moduleFactory, _data, _maxCost, _budget, "");
     }
 
@@ -518,7 +522,8 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
      * @notice Internal - adjusts totalSupply at checkpoint after minting or burning tokens
      */
     function _adjustTotalSupplyCheckpoints() internal {
-        TokenLib.adjustCheckpoints(checkpointTotalSupply, totalSupply(), currentCheckpointId);
+        history.adjustTotalSupplyCheckpoint(totalSupply());
+        /* TokenLib.adjustCheckpoints(checkpointTotalSupply, totalSupply(), currentCheckpointId); */
     }
 
     /**
@@ -526,7 +531,8 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
      * @param _investor address of the token holder affected
      */
     function _adjustBalanceCheckpoints(address _investor) internal {
-        TokenLib.adjustCheckpoints(checkpointBalances[_investor], balanceOf(_investor), currentCheckpointId);
+        history.adjustBalanceCheckpoint(_investor, balanceOf(_investor));
+        /* TokenLib.adjustCheckpoints(checkpointBalances[_investor], balanceOf(_investor), currentCheckpointId); */
     }
 
     /**
@@ -662,7 +668,7 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
 
     /**
      * @notice Permanently freeze minting of this security token.
-     * @dev It MUST NOT be possible to increase `totalSuppy` after this function is called.
+     * @dev It MUST NOT be possible to increase `totalSupply` after this function is called.
      */
     function freezeMinting() external isMintingAllowed() isEnabled("freezeMintingAllowed") onlyOwner {
         mintingFrozen = true;
@@ -769,17 +775,13 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
     }
 
     /**
-     * @notice Creates a checkpoint that can be used to query historical balances / totalSuppy
+     * @notice Creates a checkpoint that can be used to query historical balances / totalSupply
      * @return uint256
      */
     function createCheckpoint() external onlyModuleOrOwner(CHECKPOINT_KEY) returns(uint256) {
-        require(currentCheckpointId < 2**256 - 1);
-        currentCheckpointId = currentCheckpointId + 1;
-        /*solium-disable-next-line security/no-block-members*/
-        checkpointTimes.push(now);
-        /*solium-disable-next-line security/no-block-members*/
-        emit CheckpointCreated(currentCheckpointId, now);
-        return currentCheckpointId;
+        uint256 checkpointId = history.createCheckpoint();
+        emit CheckpointCreated(checkpointId, now);
+        return checkpointId;
     }
 
     /**
@@ -787,7 +789,7 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
      * @return List of checkpoint times
      */
     function getCheckpointTimes() external view returns(uint256[]) {
-        return checkpointTimes;
+        return history.getCheckpointTimes();
     }
 
     /**
@@ -796,8 +798,9 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
      * @return uint256
      */
     function totalSupplyAt(uint256 _checkpointId) external view returns(uint256) {
-        require(_checkpointId <= currentCheckpointId);
-        return TokenLib.getValueAt(checkpointTotalSupply, _checkpointId, totalSupply());
+        /* require(_checkpointId <= currentCheckpointId); */
+        return history.totalSupplyAt(_checkpointId, totalSupply());
+        /* return TokenLib.getValueAt(checkpointTotalSupply, _checkpointId, totalSupply()); */
     }
 
     /**
@@ -806,8 +809,13 @@ contract SecurityToken is ERC20, ERC20Detailed, ReentrancyGuard, RegistryUpdater
      * @param _checkpointId Checkpoint ID to query as of
      */
     function balanceOfAt(address _investor, uint256 _checkpointId) public view returns(uint256) {
-        require(_checkpointId <= currentCheckpointId);
-        return TokenLib.getValueAt(checkpointBalances[_investor], _checkpointId, balanceOf(_investor));
+        /* require(_checkpointId <= currentCheckpointId); */
+        return history.balanceOfAt(_investor, _checkpointId, balanceOf(_investor));
+        /* return TokenLib.getValueAt(checkpointBalances[_investor], _checkpointId, balanceOf(_investor)); */
+    }
+
+    function getCurrentCheckpointId() external view returns(uint256) {
+        return history.getCurrentCheckpointId();
     }
 
     /**

@@ -19,12 +19,6 @@ library TokenLib {
         bytes32 label;
     }
 
-    // Structures to maintain checkpoints of balances for governance / dividends
-    struct Checkpoint {
-        uint256 checkpointId;
-        uint256 value;
-    }
-
     struct InvestorDataStorage {
         // List of investors who have ever held a non-zero token balance
         mapping (address => bool) investorListed;
@@ -86,70 +80,6 @@ library TokenLib {
         }
 
         return false;
-    }
-
-    /**
-     * @notice Queries a value at a defined checkpoint
-     * @param _checkpoints is array of Checkpoint objects
-     * @param _checkpointId is the Checkpoint ID to query
-     * @param _currentValue is the Current value of checkpoint
-     * @return uint256
-     */
-    function getValueAt(Checkpoint[] storage _checkpoints, uint256 _checkpointId, uint256 _currentValue) public view returns(uint256) {
-        //Checkpoint id 0 is when the token is first created - everyone has a zero balance
-        if (_checkpointId == 0) {
-            return 0;
-        }
-        if (_checkpoints.length == 0) {
-            return _currentValue;
-        }
-        if (_checkpoints[0].checkpointId >= _checkpointId) {
-            return _checkpoints[0].value;
-        }
-        if (_checkpoints[_checkpoints.length - 1].checkpointId < _checkpointId) {
-            return _currentValue;
-        }
-        if (_checkpoints[_checkpoints.length - 1].checkpointId == _checkpointId) {
-            return _checkpoints[_checkpoints.length - 1].value;
-        }
-        uint256 min = 0;
-        uint256 max = _checkpoints.length - 1;
-        while (max > min) {
-            uint256 mid = (max + min) / 2;
-            if (_checkpoints[mid].checkpointId == _checkpointId) {
-                max = mid;
-                break;
-            }
-            if (_checkpoints[mid].checkpointId < _checkpointId) {
-                min = mid + 1;
-            } else {
-                max = mid;
-            }
-        }
-        return _checkpoints[max].value;
-    }
-
-    /**
-     * @notice Stores the changes to the checkpoint objects
-     * @param _checkpoints is the affected checkpoint object array
-     * @param _newValue is the new value that needs to be stored
-     */
-    function adjustCheckpoints(TokenLib.Checkpoint[] storage _checkpoints, uint256 _newValue, uint256 _currentCheckpointId) public {
-        //No checkpoints set yet
-        if (_currentCheckpointId == 0) {
-            return;
-        }
-        //No new checkpoints since last update
-        if ((_checkpoints.length > 0) && (_checkpoints[_checkpoints.length - 1].checkpointId == _currentCheckpointId)) {
-            return;
-        }
-        //New checkpoint, so record balance
-        _checkpoints.push(
-            TokenLib.Checkpoint({
-                checkpointId: _currentCheckpointId,
-                value: _newValue
-            })
-        );
     }
 
     /**
