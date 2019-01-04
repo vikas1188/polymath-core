@@ -30,7 +30,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @dev Math operations with safety checks that throw on error
  */
 library SafeMath {
-    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+    function mul(uint256 a, uint256 b) internal  returns (uint256) {
         if (a == 0) {
             return 0;
         }
@@ -39,19 +39,19 @@ library SafeMath {
         return c;
     }
 
-    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+    function div(uint256 a, uint256 b) internal  returns (uint256) {
         // assert(b > 0); // Solidity automatically throws when dividing by 0
         uint256 c = a / b;
         // assert(a == b * c + a % b); // There is no case in which this doesn't hold
         return c;
     }
 
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+    function sub(uint256 a, uint256 b) internal  returns (uint256) {
         assert(b <= a);
         return a - b;
     }
 
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+    function add(uint256 a, uint256 b) internal  returns (uint256) {
         uint256 c = a + b;
         assert(c >= a);
         return c;
@@ -94,7 +94,7 @@ contract PolyToken is IERC20 {
     * @param _owner The address to query the the balance of
     * @return An uint256 representing the amount owned by the passed address
     */
-    function balanceOf(address _owner) public view returns (uint256 balance) {
+    function balanceOf(address _owner) public  returns (uint256 balance) {
         return balances[_owner];
     }
 
@@ -104,7 +104,7 @@ contract PolyToken is IERC20 {
     * @param _spender address The address which will spend the tokens
     * @return A uint256 specifying the amount of tokens left available for the spender
     */
-    function allowance(address _owner, address _spender) public view returns (uint256) {
+    function allowance(address _owner, address _spender) public  returns (uint256) {
         return allowed[_owner][_spender];
     }
 

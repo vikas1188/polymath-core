@@ -22,7 +22,7 @@ contract MockWrongTypeFactory is MockBurnFactory {
     /**
      * @notice Type of the Module factory
      */
-    function getTypes() external view returns(uint8[]) {
+    function getTypes() external  returns(uint8[]) {
         uint8[] memory types = new uint8[](1);
         types[0] = 4;
         return types;

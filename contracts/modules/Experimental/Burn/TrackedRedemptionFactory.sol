@@ -32,7 +32,7 @@ contract TrackedRedemptionFactory is ModuleFactory {
      */
     function deploy(bytes /* _data */) external returns(address) {
         if (setupCost > 0)
-            require(polyToken.transferFrom(msg.sender, owner, setupCost), "Insufficent allowance or balance");
+            {require(polyToken.transferFrom(msg.sender, owner, setupCost), "Insufficent allowance or balance");}
         address trackedRedemption = new TrackedRedemption(msg.sender, address(polyToken));
         /*solium-disable-next-line security/no-block-members*/
         emit GenerateModuleFromFactory(address(trackedRedemption), getName(), address(this), msg.sender, setupCost, now);
@@ -42,7 +42,7 @@ contract TrackedRedemptionFactory is ModuleFactory {
     /**
      * @notice Type of the Module factory
      */
-    function getTypes() external view returns(uint8[]) {
+    function getTypes() external  returns(uint8[]) {
         uint8[] memory res = new uint8[](1);
         res[0] = 5;
         return res;
@@ -51,14 +51,14 @@ contract TrackedRedemptionFactory is ModuleFactory {
     /**
      * @notice Returns the instructions associated with the module
      */
-    function getInstructions() external view returns(string) {
+    function getInstructions() external  returns(string) {
         return "Allows an investor to redeem security tokens which are tracked by this module";
     }
 
     /**
      * @notice Get the tags related to the module factory
      */
-    function getTags() external view returns(bytes32[]) {
+    function getTags() external  returns(bytes32[]) {
         bytes32[] memory availableTags = new bytes32[](2);
         availableTags[0] = "Redemption";
         availableTags[1] = "Tracked";

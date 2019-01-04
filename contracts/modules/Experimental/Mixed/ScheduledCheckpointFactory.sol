@@ -32,7 +32,7 @@ contract ScheduledCheckpointFactory is ModuleFactory {
      */
     function deploy(bytes /* _data */) external returns(address) {
         if(setupCost > 0)
-            require(polyToken.transferFrom(msg.sender, owner, setupCost), "Failed transferFrom because of sufficent Allowance is not provided");
+            {require(polyToken.transferFrom(msg.sender, owner, setupCost), "Failed transferFrom because of sufficent Allowance is not provided");}
         address scheduledCheckpoint = new ScheduledCheckpoint(msg.sender, address(polyToken));
         emit GenerateModuleFromFactory(scheduledCheckpoint, getName(), address(this), msg.sender, setupCost, now);
         return scheduledCheckpoint;
@@ -41,7 +41,7 @@ contract ScheduledCheckpointFactory is ModuleFactory {
     /**
      * @notice Type of the Module factory
      */
-    function getTypes() external view returns(uint8[]) {
+    function getTypes() external  returns(uint8[]) {
         uint8[] memory res = new uint8[](2);
         res[0] = 4;
         res[1] = 2;
@@ -51,49 +51,49 @@ contract ScheduledCheckpointFactory is ModuleFactory {
     /**
      * @notice Get the name of the Module
      */
-    function getName() public view returns(bytes32) {
+    function getName() public  returns(bytes32) {
         return name;
     }
 
     /**
      * @notice Get the description of the Module
      */
-    function getDescription() external view returns(string) {
+    function getDescription() external  returns(string) {
         return description;
     }
 
     /**
      * @notice Get the title of the Module
      */
-    function getTitle() external  view returns(string) {
+    function getTitle() external   returns(string) {
         return title;
     }
 
     /**
      * @notice Get the version of the Module
      */
-    function getVersion() external view returns(string) {
+    function getVersion() external  returns(string) {
         return version;
     }
 
     /**
      * @notice Get the setup cost of the module
      */
-    function getSetupCost() external view returns (uint256) {
+    function getSetupCost() external  returns (uint256) {
         return setupCost;
     }
 
     /**
      * @notice Get the Instructions that helped to used the module
      */
-    function getInstructions() external view returns(string) {
+    function getInstructions() external  returns(string) {
         return "Schedule a series of future checkpoints by specifying a start time and interval of each checkpoint";
     }
 
     /**
      * @notice Get the tags related to the module factory
      */
-    function getTags() external view returns(bytes32[]) {
+    function getTags() external  returns(bytes32[]) {
         bytes32[] memory availableTags = new bytes32[](2);
         availableTags[0] = "Scheduled";
         availableTags[1] = "Checkpoint";

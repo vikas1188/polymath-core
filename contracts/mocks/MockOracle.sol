@@ -23,28 +23,28 @@ contract MockOracle is IOracle {
     /**
     * @notice Returns address of oracle currency (0x0 for ETH)
     */
-    function getCurrencyAddress() external view returns(address) {
+    function getCurrencyAddress() external  returns(address) {
         return currency;
     }
 
     /**
     * @notice Returns symbol of oracle currency (0x0 for ETH)
     */
-    function getCurrencySymbol() external view returns(bytes32) {
+    function getCurrencySymbol() external  returns(bytes32) {
         return currencySymbol;
     }
 
     /**
     * @notice Returns denomination of price
     */
-    function getCurrencyDenominated() external view returns(bytes32) {
+    function getCurrencyDenominated() external  returns(bytes32) {
         return denominatedCurrency;
     }
 
     /**
     * @notice Returns price - should throw if not valid
     */
-    function getPrice() external view returns(uint256) {
+    function getPrice() external  returns(uint256) {
         return price;
     }
 

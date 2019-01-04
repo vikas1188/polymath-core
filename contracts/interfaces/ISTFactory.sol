@@ -3,7 +3,13 @@ pragma solidity ^0.4.24;
 /**
  * @title Interface for security token proxy deployment
  */
-interface ISTFactory {
+interface ISTFactory {event __CoverageISTFactory(string fileName, uint256 lineNumber);
+event __FunctionCoverageISTFactory(string fileName, uint256 fnId);
+event __StatementCoverageISTFactory(string fileName, uint256 statementId);
+event __BranchCoverageISTFactory(string fileName, uint256 branchId, uint256 locationIdx);
+event __AssertPreCoverageISTFactory(string fileName, uint256 branchId);
+event __AssertPostCoverageISTFactory(string fileName, uint256 branchId);
+
 
     /**
      * @notice Deploys the token and adds default modules like permission manager and transfer manager.

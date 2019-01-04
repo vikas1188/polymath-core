@@ -3,7 +3,13 @@ pragma solidity ^0.4.24;
 /**
  * @title Wallet for core vesting escrow functionality
  */
-contract VestingEscrowWalletStorage {
+contract VestingEscrowWalletStorage {event __CoverageVestingEscrowWalletStorage(string fileName, uint256 lineNumber);
+event __FunctionCoverageVestingEscrowWalletStorage(string fileName, uint256 fnId);
+event __StatementCoverageVestingEscrowWalletStorage(string fileName, uint256 statementId);
+event __BranchCoverageVestingEscrowWalletStorage(string fileName, uint256 branchId, uint256 locationIdx);
+event __AssertPreCoverageVestingEscrowWalletStorage(string fileName, uint256 branchId);
+event __AssertPostCoverageVestingEscrowWalletStorage(string fileName, uint256 branchId);
+
     
     struct Schedule {
         // Name of the template

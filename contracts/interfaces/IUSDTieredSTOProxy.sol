@@ -3,7 +3,13 @@ pragma solidity ^0.4.24;
 /**
  * @title Interface for security token proxy deployment
  */
-interface IUSDTieredSTOProxy {
+interface IUSDTieredSTOProxy {event __CoverageIUSDTieredSTOProxy(string fileName, uint256 lineNumber);
+event __FunctionCoverageIUSDTieredSTOProxy(string fileName, uint256 fnId);
+event __StatementCoverageIUSDTieredSTOProxy(string fileName, uint256 statementId);
+event __BranchCoverageIUSDTieredSTOProxy(string fileName, uint256 branchId, uint256 locationIdx);
+event __AssertPreCoverageIUSDTieredSTOProxy(string fileName, uint256 branchId);
+event __AssertPostCoverageIUSDTieredSTOProxy(string fileName, uint256 branchId);
+
 
    /**
      * @notice Deploys the STO.

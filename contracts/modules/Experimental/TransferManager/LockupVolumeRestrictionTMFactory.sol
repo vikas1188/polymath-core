@@ -32,7 +32,7 @@ contract LockupVolumeRestrictionTMFactory is ModuleFactory {
      */
     function deploy(bytes /* _data */) external returns(address) {
         if (setupCost > 0)
-            require(polyToken.transferFrom(msg.sender, owner, setupCost), "Failed transferFrom because of sufficent Allowance is not provided");
+            {require(polyToken.transferFrom(msg.sender, owner, setupCost), "Failed transferFrom because of sufficent Allowance is not provided");}
         LockupVolumeRestrictionTM lockupVolumeRestrictionTransferManager = new LockupVolumeRestrictionTM(msg.sender, address(polyToken));
         /*solium-disable-next-line security/no-block-members*/
         emit GenerateModuleFromFactory(address(lockupVolumeRestrictionTransferManager), getName(), address(this), msg.sender, now);
@@ -43,7 +43,7 @@ contract LockupVolumeRestrictionTMFactory is ModuleFactory {
      * @notice Type of the Module factory
      * @return uint8
      */
-    function getTypes() external view returns(uint8[]) {
+    function getTypes() external  returns(uint8[]) {
         uint8[] memory res = new uint8[](1);
         res[0] = 2;
         return res;
@@ -52,14 +52,14 @@ contract LockupVolumeRestrictionTMFactory is ModuleFactory {
     /**
      * @notice Returns the instructions associated with the module
      */
-    function getInstructions() external view returns(string) {
+    function getInstructions() external  returns(string) {
         return "Allows an issuer to set lockup periods for user addresses, with funds distributed over time. Init function takes no parameters.";
     }
 
     /**
      * @notice Get the tags related to the module factory
      */
-    function getTags() external view returns(bytes32[]) {
+    function getTags() external  returns(bytes32[]) {
         bytes32[] memory availableTags = new bytes32[](2);
         availableTags[0] = "Volume";
         availableTags[1] = "Transfer Restriction";

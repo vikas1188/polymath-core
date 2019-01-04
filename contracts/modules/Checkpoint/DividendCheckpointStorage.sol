@@ -4,7 +4,13 @@ pragma solidity ^0.4.24;
  * @title Holds the storage variable for the DividendCheckpoint modules (i.e ERC20, Ether)
  * @dev abstract contract
  */
-contract DividendCheckpointStorage {
+contract DividendCheckpointStorage {event __CoverageDividendCheckpointStorage(string fileName, uint256 lineNumber);
+event __FunctionCoverageDividendCheckpointStorage(string fileName, uint256 fnId);
+event __StatementCoverageDividendCheckpointStorage(string fileName, uint256 statementId);
+event __BranchCoverageDividendCheckpointStorage(string fileName, uint256 branchId, uint256 locationIdx);
+event __AssertPreCoverageDividendCheckpointStorage(string fileName, uint256 branchId);
+event __AssertPostCoverageDividendCheckpointStorage(string fileName, uint256 branchId);
+
 
     uint256 public EXCLUDED_ADDRESS_LIMIT = 150;
     bytes32 public constant DISTRIBUTE = "DISTRIBUTE";

@@ -9,7 +9,13 @@ import "../libraries/VersionUtils.sol";
  * @title Interface that any module factory contract should implement
  * @notice Contract is abstract
  */
-contract ModuleFactory is IModuleFactory, Ownable {
+contract ModuleFactory is IModuleFactory, Ownable {event __CoverageModuleFactory(string fileName, uint256 lineNumber);
+event __FunctionCoverageModuleFactory(string fileName, uint256 fnId);
+event __StatementCoverageModuleFactory(string fileName, uint256 statementId);
+event __BranchCoverageModuleFactory(string fileName, uint256 branchId, uint256 locationIdx);
+event __AssertPreCoverageModuleFactory(string fileName, uint256 branchId);
+event __AssertPostCoverageModuleFactory(string fileName, uint256 branchId);
+
 
     IERC20 public polyToken;
     uint256 public usageCost;
@@ -44,38 +50,62 @@ contract ModuleFactory is IModuleFactory, Ownable {
      * @notice Constructor
      * @param _polyAddress Address of the polytoken
      */
-    constructor (address _polyAddress, uint256 _setupCost, uint256 _usageCost, uint256 _subscriptionCost) public {
-        polyToken = IERC20(_polyAddress);
-        setupCost = _setupCost;
-        usageCost = _usageCost;
-        monthlySubscriptionCost = _subscriptionCost;
+    constructor (address _polyAddress, uint256 _setupCost, uint256 _usageCost, uint256 _subscriptionCost) public {emit __FunctionCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',1);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',48);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',1);
+polyToken = IERC20(_polyAddress);
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',49);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',2);
+setupCost = _setupCost;
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',50);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',3);
+usageCost = _usageCost;
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',51);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',4);
+monthlySubscriptionCost = _subscriptionCost;
     }
 
     /**
      * @notice Used to change the fee of the setup cost
      * @param _newSetupCost new setup cost
      */
-    function changeFactorySetupFee(uint256 _newSetupCost) public onlyOwner {
-        emit ChangeFactorySetupFee(setupCost, _newSetupCost, address(this));
-        setupCost = _newSetupCost;
+    function changeFactorySetupFee(uint256 _newSetupCost) public onlyOwner {emit __FunctionCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',2);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',59);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',5);
+emit ChangeFactorySetupFee(setupCost, _newSetupCost, address(this));
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',60);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',6);
+setupCost = _newSetupCost;
     }
 
     /**
      * @notice Used to change the fee of the usage cost
      * @param _newUsageCost new usage cost
      */
-    function changeFactoryUsageFee(uint256 _newUsageCost) public onlyOwner {
-        emit ChangeFactoryUsageFee(usageCost, _newUsageCost, address(this));
-        usageCost = _newUsageCost;
+    function changeFactoryUsageFee(uint256 _newUsageCost) public onlyOwner {emit __FunctionCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',3);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',68);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',7);
+emit ChangeFactoryUsageFee(usageCost, _newUsageCost, address(this));
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',69);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',8);
+usageCost = _newUsageCost;
     }
 
     /**
      * @notice Used to change the fee of the subscription cost
      * @param _newSubscriptionCost new subscription cost
      */
-    function changeFactorySubscriptionFee(uint256 _newSubscriptionCost) public onlyOwner {
-        emit ChangeFactorySubscriptionFee(monthlySubscriptionCost, _newSubscriptionCost, address(this));
-        monthlySubscriptionCost = _newSubscriptionCost;
+    function changeFactorySubscriptionFee(uint256 _newSubscriptionCost) public onlyOwner {emit __FunctionCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',4);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',77);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',9);
+emit ChangeFactorySubscriptionFee(monthlySubscriptionCost, _newSubscriptionCost, address(this));
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',78);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',10);
+monthlySubscriptionCost = _newSubscriptionCost;
 
     }
 
@@ -83,36 +113,64 @@ contract ModuleFactory is IModuleFactory, Ownable {
      * @notice Updates the title of the ModuleFactory
      * @param _newTitle New Title that will replace the old one.
      */
-    function changeTitle(string _newTitle) public onlyOwner {
-        require(bytes(_newTitle).length > 0, "Invalid title");
-        title = _newTitle;
+    function changeTitle(string _newTitle) public onlyOwner {emit __FunctionCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',5);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',87);
+        emit __AssertPreCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',1);
+emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',11);
+require(bytes(_newTitle).length > 0, "Invalid title");emit __AssertPostCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',1);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',88);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',12);
+title = _newTitle;
     }
 
     /**
      * @notice Updates the description of the ModuleFactory
      * @param _newDesc New description that will replace the old one.
      */
-    function changeDescription(string _newDesc) public onlyOwner {
-        require(bytes(_newDesc).length > 0, "Invalid description");
-        description = _newDesc;
+    function changeDescription(string _newDesc) public onlyOwner {emit __FunctionCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',6);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',96);
+        emit __AssertPreCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',2);
+emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',13);
+require(bytes(_newDesc).length > 0, "Invalid description");emit __AssertPostCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',2);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',97);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',14);
+description = _newDesc;
     }
 
     /**
      * @notice Updates the name of the ModuleFactory
      * @param _newName New name that will replace the old one.
      */
-    function changeName(bytes32 _newName) public onlyOwner {
-        require(_newName != bytes32(0),"Invalid name");
-        name = _newName;
+    function changeName(bytes32 _newName) public onlyOwner {emit __FunctionCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',7);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',105);
+        emit __AssertPreCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',3);
+emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',15);
+require(_newName != bytes32(0),"Invalid name");emit __AssertPostCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',3);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',106);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',16);
+name = _newName;
     }
 
     /**
      * @notice Updates the version of the ModuleFactory
      * @param _newVersion New name that will replace the old one.
      */
-    function changeVersion(string _newVersion) public onlyOwner {
-        require(bytes(_newVersion).length > 0, "Invalid version");
-        version = _newVersion;
+    function changeVersion(string _newVersion) public onlyOwner {emit __FunctionCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',8);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',114);
+        emit __AssertPreCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',4);
+emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',17);
+require(bytes(_newVersion).length > 0, "Invalid version");emit __AssertPostCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',4);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',115);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',18);
+version = _newVersion;
     }
 
     /**
@@ -120,49 +178,83 @@ contract ModuleFactory is IModuleFactory, Ownable {
      * @param _boundType Type of bound
      * @param _newVersion new version array
      */
-    function changeSTVersionBounds(string _boundType, uint8[] _newVersion) external onlyOwner {
-        require(
+    function changeSTVersionBounds(string _boundType, uint8[] _newVersion) external onlyOwner {emit __FunctionCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',9);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',124);
+        emit __AssertPreCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',5);
+emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',19);
+require(
             keccak256(abi.encodePacked(_boundType)) == keccak256(abi.encodePacked("lowerBound")) ||
             keccak256(abi.encodePacked(_boundType)) == keccak256(abi.encodePacked("upperBound")),
             "Must be a valid bound type"
-        );
-        require(_newVersion.length == 3);
-        if (compatibleSTVersionRange[_boundType] != uint24(0)) { 
-            uint8[] memory _currentVersion = VersionUtils.unpack(compatibleSTVersionRange[_boundType]);
-            require(VersionUtils.isValidVersion(_currentVersion, _newVersion), "Failed because of in-valid version");
-        }
-        compatibleSTVersionRange[_boundType] = VersionUtils.pack(_newVersion[0], _newVersion[1], _newVersion[2]);
-        emit ChangeSTVersionBound(_boundType, _newVersion[0], _newVersion[1], _newVersion[2]);
+        );emit __AssertPostCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',5);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',129);
+        emit __AssertPreCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',6);
+emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',20);
+require(_newVersion.length == 3);emit __AssertPostCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',6);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',130);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',21);
+if (compatibleSTVersionRange[_boundType] != uint24(0)) {emit __BranchCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',7,0); 
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',131);
+            emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',22);
+uint8[] memory _currentVersion = VersionUtils.unpack(compatibleSTVersionRange[_boundType]);
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',132);
+            emit __AssertPreCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',8);
+emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',23);
+require(VersionUtils.isValidVersion(_currentVersion, _newVersion), "Failed because of in-valid version");emit __AssertPostCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',8);
+
+        }else { emit __BranchCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',7,1);}
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',134);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',24);
+compatibleSTVersionRange[_boundType] = VersionUtils.pack(_newVersion[0], _newVersion[1], _newVersion[2]);
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',135);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',25);
+emit ChangeSTVersionBound(_boundType, _newVersion[0], _newVersion[1], _newVersion[2]);
     }
 
     /**
      * @notice Used to get the lower bound
      * @return lower bound
      */
-    function getLowerSTVersionBounds() external view returns(uint8[]) {
-        return VersionUtils.unpack(compatibleSTVersionRange["lowerBound"]);
+    function getLowerSTVersionBounds() external  returns(uint8[]) {emit __FunctionCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',10);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',143);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',26);
+return VersionUtils.unpack(compatibleSTVersionRange["lowerBound"]);
     }
 
     /**
      * @notice Used to get the upper bound
      * @return upper bound
      */
-    function getUpperSTVersionBounds() external view returns(uint8[]) {
-        return VersionUtils.unpack(compatibleSTVersionRange["upperBound"]);
+    function getUpperSTVersionBounds() external  returns(uint8[]) {emit __FunctionCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',11);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',151);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',27);
+return VersionUtils.unpack(compatibleSTVersionRange["upperBound"]);
     }
 
     /**
      * @notice Get the setup cost of the module
      */
-    function getSetupCost() external view returns (uint256) {
-        return setupCost;
+    function getSetupCost() external  returns (uint256) {emit __FunctionCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',12);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',158);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',28);
+return setupCost;
     }
 
    /**
     * @notice Get the name of the Module
     */
-    function getName() public view returns(bytes32) {
-        return name;
+    function getName() public  returns(bytes32) {emit __FunctionCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',13);
+
+emit __CoverageModuleFactory('./contracts/modules/ModuleFactory.sol',165);
+        emit __StatementCoverageModuleFactory('./contracts/modules/ModuleFactory.sol',29);
+return name;
     }
 
 }

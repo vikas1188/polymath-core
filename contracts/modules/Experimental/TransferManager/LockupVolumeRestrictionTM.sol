@@ -220,7 +220,7 @@ contract LockupVolumeRestrictionTM is ITransferManager {
      * @notice Get the length of the lockups array for a specific user address
      * @param _userAddress Address of the user whose tokens should be locked up
      */
-    function getLockUpsLength(address _userAddress) public view returns (uint) {
+    function getLockUpsLength(address _userAddress) public  returns (uint) {
         return lockUps[_userAddress].length;
     }
 
@@ -232,7 +232,7 @@ contract LockupVolumeRestrictionTM is ITransferManager {
     function getLockUp(
         address _userAddress,
         uint _lockUpIndex)
-        public view returns (
+        public  returns (
         uint lockUpPeriodSeconds,
         uint releaseFrequencySeconds,
         uint startTime,
@@ -279,7 +279,7 @@ contract LockupVolumeRestrictionTM is ITransferManager {
                 // lockup has passed, or not started yet.  allow all.
                 allowedAmountForThisLockup = aLockUp.totalAmount.sub(aLockUp.alreadyWithdrawn);
                 /*solium-disable-next-line security/no-block-members*/
-            } else if (now >= aLockUp.startTime) {
+            } else {if (now >= aLockUp.startTime) {
                 // lockup is active. calculate how many to allow to be withdrawn right now
                 // calculate how many periods have elapsed already
                 /*solium-disable-next-line security/no-block-members*/
@@ -293,7 +293,7 @@ contract LockupVolumeRestrictionTM is ITransferManager {
                 // and add it to the total tokenSums[0]
                 allowedAmountForThisLockup = amountPerPeriod.mul(elapsedPeriods).sub(aLockUp.alreadyWithdrawn);
 
-            }
+            }}
             // tokenSums[0] is allowed sum
             tokenSums[0] = tokenSums[0].add(allowedAmountForThisLockup);
             // tokenSums[1] is total locked up
@@ -343,7 +343,7 @@ contract LockupVolumeRestrictionTM is ITransferManager {
         uint amount,
         uint totalSum,
         uint alreadyWithdrawnSum
-        ) internal view returns (Result) {
+        ) internal  returns (Result) {
         // the amount the user wants to withdraw is greater than their allowed amounts according to the lockups.  however, if the user has like, 10 tokens, but only 4 are locked up, we should let the transfer go through for those 6 that aren't locked up
         uint currentUserBalance = ISecurityToken(securityToken).balanceOf(userAddress);
         uint stillLockedAmount = totalSum.sub(alreadyWithdrawnSum);
@@ -361,7 +361,7 @@ contract LockupVolumeRestrictionTM is ITransferManager {
      * @param releaseFrequencySeconds How often to release a tranche of tokens (seconds)
      * @param totalAmount Total amount of locked up tokens
      */
-    function _checkLockUpParams(uint lockUpPeriodSeconds, uint releaseFrequencySeconds, uint totalAmount) internal view {
+    function _checkLockUpParams(uint lockUpPeriodSeconds, uint releaseFrequencySeconds, uint totalAmount) internal  {
         require(lockUpPeriodSeconds != 0, "lockUpPeriodSeconds cannot be zero");
         require(releaseFrequencySeconds != 0, "releaseFrequencySeconds cannot be zero");
         require(totalAmount != 0, "totalAmount cannot be zero");
@@ -396,14 +396,14 @@ contract LockupVolumeRestrictionTM is ITransferManager {
     /**
      * @notice This function returns the signature of configure function
      */
-    function getInitFunction() public pure returns (bytes4) {
+    function getInitFunction() public  returns (bytes4) {
         return bytes4(0);
     }
 
     /**
      * @notice Returns the permissions flag that are associated with Percentage transfer Manager
      */
-    function getPermissions() public view returns(bytes32[]) {
+    function getPermissions() public  returns(bytes32[]) {
         bytes32[] memory allPermissions = new bytes32[](1);
         allPermissions[0] = ADMIN;
         return allPermissions;

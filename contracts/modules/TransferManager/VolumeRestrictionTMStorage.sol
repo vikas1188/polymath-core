@@ -3,7 +3,13 @@ pragma solidity ^0.4.24;
 /**
  * @title Storage layout for VolumeRestrictionTM
  */
-contract VolumeRestrictionTMStorage {
+contract VolumeRestrictionTMStorage {event __CoverageVolumeRestrictionTMStorage(string fileName, uint256 lineNumber);
+event __FunctionCoverageVolumeRestrictionTMStorage(string fileName, uint256 fnId);
+event __StatementCoverageVolumeRestrictionTMStorage(string fileName, uint256 statementId);
+event __BranchCoverageVolumeRestrictionTMStorage(string fileName, uint256 branchId, uint256 locationIdx);
+event __AssertPreCoverageVolumeRestrictionTMStorage(string fileName, uint256 branchId);
+event __AssertPostCoverageVolumeRestrictionTMStorage(string fileName, uint256 branchId);
+
 
     enum RestrictionType { Fixed, Percentage }
 

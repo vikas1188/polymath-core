@@ -7,7 +7,13 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 /**
  * @title STO module for private presales
  */
-contract PreSaleSTO is ISTO {
+contract PreSaleSTO is ISTO {event __CoveragePreSaleSTO(string fileName, uint256 lineNumber);
+event __FunctionCoveragePreSaleSTO(string fileName, uint256 fnId);
+event __StatementCoveragePreSaleSTO(string fileName, uint256 statementId);
+event __BranchCoveragePreSaleSTO(string fileName, uint256 branchId, uint256 locationIdx);
+event __AssertPreCoveragePreSaleSTO(string fileName, uint256 branchId);
+event __AssertPostCoveragePreSaleSTO(string fileName, uint256 branchId);
+
     using SafeMath for uint256;
 
     bytes32 public constant PRE_SALE_ADMIN = "PRE_SALE_ADMIN";
@@ -23,46 +29,70 @@ contract PreSaleSTO is ISTO {
      */
     constructor (address _securityToken, address _polyAddress) public
     Module(_securityToken, _polyAddress)
-    {
+    {emit __FunctionCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',1);
+
     }
 
     /**
      * @notice Function used to initialize the different variables
      * @param _endTime Unix timestamp at which offering ends
      */
-    function configure(uint256 _endTime) public onlyFactory {
-        require(_endTime != 0, "endTime should not be 0");
-        endTime = _endTime;
+    function configure(uint256 _endTime) public onlyFactory {emit __FunctionCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',2);
+
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',34);
+        emit __AssertPreCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',1);
+emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',1);
+require(_endTime != 0, "endTime should not be 0");emit __AssertPostCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',1);
+
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',35);
+        emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',2);
+endTime = _endTime;
     }
 
     /**
      * @notice This function returns the signature of the configure function
      */
-    function getInitFunction() public pure returns (bytes4) {
-        return bytes4(keccak256("configure(uint256)"));
+    function getInitFunction() public  returns (bytes4) {emit __FunctionCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',3);
+
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',42);
+        emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',3);
+return bytes4(keccak256("configure(uint256)"));
     }
 
     /**
      * @notice Returns the total no. of investors
      */
-    function getNumberInvestors() public view returns (uint256) {
-        return investorCount;
+    function getNumberInvestors() public  returns (uint256) {emit __FunctionCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',4);
+
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',49);
+        emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',4);
+return investorCount;
     }
 
     /**
      * @notice Returns the total no. of tokens sold
      */
-    function getTokensSold() public view returns (uint256) {
-        return totalTokensSold;
+    function getTokensSold() public  returns (uint256) {emit __FunctionCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',5);
+
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',56);
+        emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',5);
+return totalTokensSold;
     }
 
     /**
      * @notice Returns the permissions flag that are associated with STO
      */
-    function getPermissions() public view returns(bytes32[]) {
-        bytes32[] memory allPermissions = new bytes32[](1);
-        allPermissions[0] = PRE_SALE_ADMIN;
-        return allPermissions;
+    function getPermissions() public  returns(bytes32[]) {emit __FunctionCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',6);
+
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',63);
+        emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',6);
+bytes32[] memory allPermissions = new bytes32[](1);
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',64);
+        emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',7);
+allPermissions[0] = PRE_SALE_ADMIN;
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',65);
+        emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',8);
+return allPermissions;
     }
 
     /**
@@ -80,19 +110,45 @@ contract PreSaleSTO is ISTO {
     )
         public
         withPerm(PRE_SALE_ADMIN)
-    {
+    {emit __FunctionCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',7);
+
         /*solium-disable-next-line security/no-block-members*/
-        require(now <= endTime, "Already passed Endtime");
-        require(_amount > 0, "No. of tokens provided should be greater the zero");
-        ISecurityToken(securityToken).mint(_investor, _amount);
-        if (investors[_investor] == uint256(0)) {
-            investorCount = investorCount.add(1);
-        }
-        investors[_investor] = investors[_investor].add(_amount);
-        fundsRaised[uint8(FundRaiseType.ETH)] = fundsRaised[uint8(FundRaiseType.ETH)].add(_etherContributed);
-        fundsRaised[uint8(FundRaiseType.POLY)] = fundsRaised[uint8(FundRaiseType.POLY)].add(_polyContributed);
-        totalTokensSold = totalTokensSold.add(_amount);
-        emit TokensAllocated(_investor, _amount);
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',85);
+        emit __AssertPreCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',2);
+emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',9);
+require(now <= endTime, "Already passed Endtime");emit __AssertPostCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',2);
+
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',86);
+        emit __AssertPreCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',3);
+emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',10);
+require(_amount > 0, "No. of tokens provided should be greater the zero");emit __AssertPostCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',3);
+
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',87);
+        emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',11);
+ISecurityToken(securityToken).mint(_investor, _amount);
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',88);
+        emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',12);
+if (investors[_investor] == uint256(0)) {emit __BranchCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',4,0);
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',89);
+            emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',13);
+investorCount = investorCount.add(1);
+        }else { emit __BranchCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',4,1);}
+
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',91);
+        emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',14);
+investors[_investor] = investors[_investor].add(_amount);
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',92);
+        emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',15);
+fundsRaised[uint8(FundRaiseType.ETH)] = fundsRaised[uint8(FundRaiseType.ETH)].add(_etherContributed);
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',93);
+        emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',16);
+fundsRaised[uint8(FundRaiseType.POLY)] = fundsRaised[uint8(FundRaiseType.POLY)].add(_polyContributed);
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',94);
+        emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',17);
+totalTokensSold = totalTokensSold.add(_amount);
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',95);
+        emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',18);
+emit TokensAllocated(_investor, _amount);
     }
 
     /**
@@ -110,12 +166,29 @@ contract PreSaleSTO is ISTO {
     )
         public
         withPerm(PRE_SALE_ADMIN)
-    {
-        require(_investors.length == _amounts.length, "Mis-match in length of the arrays");
-        require(_etherContributed.length == _polyContributed.length, "Mis-match in length of the arrays");
-        require(_etherContributed.length == _investors.length, "Mis-match in length of the arrays");
-        for (uint256 i = 0; i < _investors.length; i++) {
-            allocateTokens(_investors[i], _amounts[i], _etherContributed[i], _polyContributed[i]);
+    {emit __FunctionCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',8);
+
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',114);
+        emit __AssertPreCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',5);
+emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',19);
+require(_investors.length == _amounts.length, "Mis-match in length of the arrays");emit __AssertPostCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',5);
+
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',115);
+        emit __AssertPreCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',6);
+emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',20);
+require(_etherContributed.length == _polyContributed.length, "Mis-match in length of the arrays");emit __AssertPostCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',6);
+
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',116);
+        emit __AssertPreCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',7);
+emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',21);
+require(_etherContributed.length == _investors.length, "Mis-match in length of the arrays");emit __AssertPostCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',7);
+
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',117);
+        emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',22);
+for (uint256 i = 0; i < _investors.length; i++) {
+emit __CoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',118);
+            emit __StatementCoveragePreSaleSTO('./contracts/modules/STO/PreSaleSTO.sol',23);
+allocateTokens(_investors[i], _amounts[i], _etherContributed[i], _polyContributed[i]);
         }
     }
 }

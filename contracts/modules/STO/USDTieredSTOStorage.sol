@@ -5,7 +5,13 @@ import "../../interfaces/IERC20.sol";
 /**
  * @title Contract used to store layout for the USDTieredSTO storage
  */
-contract USDTieredSTOStorage {
+contract USDTieredSTOStorage {event __CoverageUSDTieredSTOStorage(string fileName, uint256 lineNumber);
+event __FunctionCoverageUSDTieredSTOStorage(string fileName, uint256 fnId);
+event __StatementCoverageUSDTieredSTOStorage(string fileName, uint256 statementId);
+event __BranchCoverageUSDTieredSTOStorage(string fileName, uint256 branchId, uint256 locationIdx);
+event __AssertPreCoverageUSDTieredSTOStorage(string fileName, uint256 branchId);
+event __AssertPostCoverageUSDTieredSTOStorage(string fileName, uint256 branchId);
+
 
     /////////////
     // Storage //

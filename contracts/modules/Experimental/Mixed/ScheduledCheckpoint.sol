@@ -42,7 +42,7 @@ contract ScheduledCheckpoint is ICheckpoint, ITransferManager {
     /**
      * @notice This function returns the signature of configure function
      */
-    function getInitFunction() public pure returns (bytes4) {
+    function getInitFunction() public  returns (bytes4) {
         return bytes4(0);
     }
 
@@ -99,7 +99,7 @@ contract ScheduledCheckpoint is ICheckpoint, ITransferManager {
      * @notice gets schedule details
      * @param _name name of the schedule
      */
-    function getSchedule(bytes32 _name) view external returns(bytes32, uint256, uint256, uint256, uint256[], uint256[], uint256[]) {
+    function getSchedule(bytes32 _name)  external returns(bytes32, uint256, uint256, uint256, uint256[], uint256[], uint256[]) {
         return (
             schedules[_name].name,
             schedules[_name].startTime,
@@ -148,7 +148,7 @@ contract ScheduledCheckpoint is ICheckpoint, ITransferManager {
     /**
      * @notice Return the permissions flag that are associated with CountTransferManager
      */
-    function getPermissions() view external returns(bytes32[]) {
+    function getPermissions()  external returns(bytes32[]) {
         bytes32[] memory allPermissions = new bytes32[](0);
         return allPermissions;
     }

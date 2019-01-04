@@ -28,7 +28,7 @@ contract TrackedRedemption is IBurn, Module {
     /**
      * @notice This function returns the signature of configure function
      */
-    function getInitFunction() public pure returns (bytes4) {
+    function getInitFunction() public  returns (bytes4) {
         return bytes4(0);
     }
 
@@ -46,7 +46,7 @@ contract TrackedRedemption is IBurn, Module {
     /**
      * @notice Returns the permissions flag that are associated with CountTransferManager
      */
-    function getPermissions() public view returns(bytes32[]) {
+    function getPermissions() public  returns(bytes32[]) {
         bytes32[] memory allPermissions = new bytes32[](0);
         return allPermissions;
     }

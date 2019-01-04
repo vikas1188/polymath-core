@@ -3,7 +3,13 @@ pragma solidity ^0.4.24;
 /**
  * @title Interface that every module factory contract should implement
  */
-interface IModuleFactory {
+interface IModuleFactory {event __CoverageIModuleFactory(string fileName, uint256 lineNumber);
+event __FunctionCoverageIModuleFactory(string fileName, uint256 fnId);
+event __StatementCoverageIModuleFactory(string fileName, uint256 statementId);
+event __BranchCoverageIModuleFactory(string fileName, uint256 branchId, uint256 locationIdx);
+event __AssertPreCoverageIModuleFactory(string fileName, uint256 branchId);
+event __AssertPostCoverageIModuleFactory(string fileName, uint256 branchId);
+
 
     event ChangeFactorySetupFee(uint256 _oldSetupCost, uint256 _newSetupCost, address _moduleFactory);
     event ChangeFactoryUsageFee(uint256 _oldUsageCost, uint256 _newUsageCost, address _moduleFactory);
@@ -24,22 +30,22 @@ interface IModuleFactory {
     /**
      * @notice Type of the Module factory
      */
-    function getTypes() external view returns(uint8[]);
+    function getTypes() external  returns(uint8[]);
 
     /**
      * @notice Get the name of the Module
      */
-    function getName() external view returns(bytes32);
+    function getName() external  returns(bytes32);
 
     /**
      * @notice Returns the instructions associated with the module
      */
-    function getInstructions() external view returns (string);
+    function getInstructions() external  returns (string);
 
     /**
      * @notice Get the tags related to the module factory
      */
-    function getTags() external view returns (bytes32[]);
+    function getTags() external  returns (bytes32[]);
 
     /**
      * @notice Used to change the setup fee
@@ -69,18 +75,18 @@ interface IModuleFactory {
    /**
      * @notice Get the setup cost of the module
      */
-    function getSetupCost() external view returns (uint256);
+    function getSetupCost() external  returns (uint256);
 
     /**
      * @notice Used to get the lower bound
      * @return Lower bound
      */
-    function getLowerSTVersionBounds() external view returns(uint8[]);
+    function getLowerSTVersionBounds() external  returns(uint8[]);
 
      /**
      * @notice Used to get the upper bound
      * @return Upper bound
      */
-    function getUpperSTVersionBounds() external view returns(uint8[]);
+    function getUpperSTVersionBounds() external  returns(uint8[]);
 
 }

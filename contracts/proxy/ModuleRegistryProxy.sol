@@ -11,6 +11,12 @@ import "./OwnedUpgradeabilityProxy.sol";
  * authorization control functionalities
  */
 /*solium-disable-next-line no-empty-blocks*/
-contract ModuleRegistryProxy is EternalStorage, OwnedUpgradeabilityProxy {
+contract ModuleRegistryProxy is EternalStorage, OwnedUpgradeabilityProxy {event __CoverageModuleRegistryProxy(string fileName, uint256 lineNumber);
+event __FunctionCoverageModuleRegistryProxy(string fileName, uint256 fnId);
+event __StatementCoverageModuleRegistryProxy(string fileName, uint256 statementId);
+event __BranchCoverageModuleRegistryProxy(string fileName, uint256 branchId, uint256 locationIdx);
+event __AssertPreCoverageModuleRegistryProxy(string fileName, uint256 branchId);
+event __AssertPostCoverageModuleRegistryProxy(string fileName, uint256 branchId);
+
 
 }

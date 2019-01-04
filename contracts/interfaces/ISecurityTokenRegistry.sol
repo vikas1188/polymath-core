@@ -3,7 +3,13 @@ pragma solidity ^0.4.24;
 /**
  * @title Interface for the Polymath Security Token Registry contract
  */
-interface ISecurityTokenRegistry {
+interface ISecurityTokenRegistry {event __CoverageISecurityTokenRegistry(string fileName, uint256 lineNumber);
+event __FunctionCoverageISecurityTokenRegistry(string fileName, uint256 fnId);
+event __StatementCoverageISecurityTokenRegistry(string fileName, uint256 statementId);
+event __BranchCoverageISecurityTokenRegistry(string fileName, uint256 branchId, uint256 locationIdx);
+event __AssertPreCoverageISecurityTokenRegistry(string fileName, uint256 branchId);
+event __AssertPostCoverageISecurityTokenRegistry(string fileName, uint256 branchId);
+
 
    /**
      * @notice Creates a new Security Token and saves it to the registry
@@ -59,7 +65,7 @@ interface ISecurityTokenRegistry {
     * @param _securityToken Address of the Scurity token
     * @return bool
     */
-    function isSecurityToken(address _securityToken) external view returns (bool);
+    function isSecurityToken(address _securityToken) external  returns (bool);
 
     /**
     * @dev Allows the current owner to transfer control of the contract to a newOwner.
@@ -72,7 +78,7 @@ interface ISecurityTokenRegistry {
      * @param _ticker Symbol of the Scurity token
      * @return address
      */
-    function getSecurityTokenAddress(string _ticker) external view returns (address);
+    function getSecurityTokenAddress(string _ticker) external  returns (address);
 
      /**
      * @notice Get security token data by its address
@@ -82,30 +88,30 @@ interface ISecurityTokenRegistry {
      * @return string Details of the Token.
      * @return uint256 Timestamp at which Security Token get launched on Polymath platform.
      */
-    function getSecurityTokenData(address _securityToken) external view returns (string, address, string, uint256);
+    function getSecurityTokenData(address _securityToken) external  returns (string, address, string, uint256);
 
     /**
      * @notice Get the current STFactory Address
      */
-    function getSTFactoryAddress() external view returns(address);
+    function getSTFactoryAddress() external  returns(address);
 
     /**
      * @notice Get Protocol version
      */
-    function getProtocolVersion() external view returns(uint8[]);
+    function getProtocolVersion() external  returns(uint8[]);
 
     /**
      * @notice Used to get the ticker list as per the owner
      * @param _owner Address which owns the list of tickers
      */
-    function getTickersByOwner(address _owner) external view returns(bytes32[]);
+    function getTickersByOwner(address _owner) external  returns(bytes32[]);
 
     /**
      * @notice Returns the list of tokens owned by the selected address
      * @param _owner is the address which owns the list of tickers
      * @dev Intention is that this is called off-chain so block gas limit is not relevant
      */
-    function getTokensByOwner(address _owner) external view returns(address[]);
+    function getTokensByOwner(address _owner) external  returns(address[]);
 
     /**
      * @notice Returns the owner and timestamp for a given ticker
@@ -116,7 +122,7 @@ interface ISecurityTokenRegistry {
      * @return string
      * @return bool
      */
-    function getTickerDetails(string _ticker) external view returns (address, uint256, uint256, string, bool);
+    function getTickerDetails(string _ticker) external  returns (address, uint256, uint256, string, bool);
 
     /**
      * @notice Modifies the ticker details. Only polymath account has the ability
@@ -179,30 +185,30 @@ interface ISecurityTokenRegistry {
      * @notice Gets the security token launch fee
      * @return Fee amount
      */
-    function getSecurityTokenLaunchFee() external view returns(uint256);
+    function getSecurityTokenLaunchFee() external  returns(uint256);
 
     /**
      * @notice Gets the ticker registration fee
      * @return Fee amount
      */
-    function getTickerRegistrationFee() external view returns(uint256);
+    function getTickerRegistrationFee() external  returns(uint256);
 
     /**
      * @notice Gets the expiry limit
      * @return Expiry limit
      */
-    function getExpiryLimit() external view returns(uint256);
+    function getExpiryLimit() external  returns(uint256);
 
     /**
      * @notice Checks whether the registry is paused or not
      * @return bool
      */
-    function isPaused() external view returns(bool);
+    function isPaused() external  returns(bool);
 
     /**
      * @notice Gets the owner of the contract
      * @return address owner
      */
-    function owner() external view returns(address);
+    function owner() external  returns(address);
 
 }

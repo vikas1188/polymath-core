@@ -3,7 +3,13 @@ pragma solidity ^0.4.24;
 /**
  * @title Transfer Manager module for core transfer validation functionality
  */
-contract GeneralTransferManagerStorage {
+contract GeneralTransferManagerStorage {event __CoverageGeneralTransferManagerStorage(string fileName, uint256 lineNumber);
+event __FunctionCoverageGeneralTransferManagerStorage(string fileName, uint256 fnId);
+event __StatementCoverageGeneralTransferManagerStorage(string fileName, uint256 statementId);
+event __BranchCoverageGeneralTransferManagerStorage(string fileName, uint256 branchId, uint256 locationIdx);
+event __AssertPreCoverageGeneralTransferManagerStorage(string fileName, uint256 branchId);
+event __AssertPostCoverageGeneralTransferManagerStorage(string fileName, uint256 branchId);
+
 
     //Address from which issuances come
     address public issuanceAddress = address(0);

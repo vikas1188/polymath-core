@@ -3,7 +3,13 @@ pragma solidity ^0.4.24;
 import "../modules/PermissionManager/IPermissionManager.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-library TokenLib {
+library TokenLib {event __CoverageTokenLib(string fileName, uint256 lineNumber);
+event __FunctionCoverageTokenLib(string fileName, uint256 fnId);
+event __StatementCoverageTokenLib(string fileName, uint256 statementId);
+event __BranchCoverageTokenLib(string fileName, uint256 branchId, uint256 locationIdx);
+event __AssertPreCoverageTokenLib(string fileName, uint256 branchId);
+event __AssertPostCoverageTokenLib(string fileName, uint256 branchId);
+
 
     using SafeMath for uint256;
 
@@ -43,12 +49,25 @@ library TokenLib {
     * @param _moduleData Storage data
     * @param _module Address of module to archive
     */
-    function archiveModule(ModuleData storage _moduleData, address _module) public {
-        require(!_moduleData.isArchived, "Module archived");
-        require(_moduleData.module != address(0), "Module missing");
+    function archiveModule(ModuleData storage _moduleData, address _module) public {emit __FunctionCoverageTokenLib('./contracts/libraries/TokenLib.sol',1);
+
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',47);
+        emit __AssertPreCoverageTokenLib('./contracts/libraries/TokenLib.sol',1);
+emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',1);
+require(!_moduleData.isArchived, "Module archived");emit __AssertPostCoverageTokenLib('./contracts/libraries/TokenLib.sol',1);
+
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',48);
+        emit __AssertPreCoverageTokenLib('./contracts/libraries/TokenLib.sol',2);
+emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',2);
+require(_moduleData.module != address(0), "Module missing");emit __AssertPostCoverageTokenLib('./contracts/libraries/TokenLib.sol',2);
+
         /*solium-disable-next-line security/no-block-members*/
-        emit ModuleArchived(_moduleData.moduleTypes, _module, now);
-        _moduleData.isArchived = true;
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',50);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',3);
+emit ModuleArchived(_moduleData.moduleTypes, _module, now);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',51);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',4);
+_moduleData.isArchived = true;
     }
 
     /**
@@ -56,11 +75,20 @@ library TokenLib {
     * @param _moduleData Storage data
     * @param _module Address of module to unarchive
     */
-    function unarchiveModule(ModuleData storage _moduleData, address _module) public {
-        require(_moduleData.isArchived, "Module unarchived");
+    function unarchiveModule(ModuleData storage _moduleData, address _module) public {emit __FunctionCoverageTokenLib('./contracts/libraries/TokenLib.sol',2);
+
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',60);
+        emit __AssertPreCoverageTokenLib('./contracts/libraries/TokenLib.sol',3);
+emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',5);
+require(_moduleData.isArchived, "Module unarchived");emit __AssertPostCoverageTokenLib('./contracts/libraries/TokenLib.sol',3);
+
         /*solium-disable-next-line security/no-block-members*/
-        emit ModuleUnarchived(_moduleData.moduleTypes, _module, now);
-        _moduleData.isArchived = false;
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',62);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',6);
+emit ModuleUnarchived(_moduleData.moduleTypes, _module, now);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',63);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',7);
+_moduleData.isArchived = false;
     }
 
     /**
@@ -73,18 +101,33 @@ library TokenLib {
      * @param _perm is the permissions data
      * @return success
      */
-    function checkPermission(address[] storage _modules, address _delegate, address _module, bytes32 _perm) public view returns(bool) {
-        if (_modules.length == 0) {
-            return false;
+    function checkPermission(address[] storage _modules, address _delegate, address _module, bytes32 _perm) public  returns(bool) {emit __FunctionCoverageTokenLib('./contracts/libraries/TokenLib.sol',3);
+
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',77);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',8);
+if (_modules.length == 0) {emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',4,0);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',78);
+            emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',9);
+return false;
+        }else { emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',4,1);}
+
+
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',81);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',10);
+for (uint8 i = 0; i < _modules.length; i++) {
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',82);
+            emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',11);
+if (IPermissionManager(_modules[i]).checkPermission(_delegate, _module, _perm)) {emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',5,0);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',83);
+                emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',12);
+return true;
+            }else { emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',5,1);}
+
         }
 
-        for (uint8 i = 0; i < _modules.length; i++) {
-            if (IPermissionManager(_modules[i]).checkPermission(_delegate, _module, _perm)) {
-                return true;
-            }
-        }
-
-        return false;
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',87);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',13);
+return false;
     }
 
     /**
@@ -94,38 +137,86 @@ library TokenLib {
      * @param _currentValue is the Current value of checkpoint
      * @return uint256
      */
-    function getValueAt(Checkpoint[] storage _checkpoints, uint256 _checkpointId, uint256 _currentValue) public view returns(uint256) {
+    function getValueAt(Checkpoint[] storage _checkpoints, uint256 _checkpointId, uint256 _currentValue) public  returns(uint256) {emit __FunctionCoverageTokenLib('./contracts/libraries/TokenLib.sol',4);
+
         //Checkpoint id 0 is when the token is first created - everyone has a zero balance
-        if (_checkpointId == 0) {
-            return 0;
-        }
-        if (_checkpoints.length == 0) {
-            return _currentValue;
-        }
-        if (_checkpoints[0].checkpointId >= _checkpointId) {
-            return _checkpoints[0].value;
-        }
-        if (_checkpoints[_checkpoints.length - 1].checkpointId < _checkpointId) {
-            return _currentValue;
-        }
-        if (_checkpoints[_checkpoints.length - 1].checkpointId == _checkpointId) {
-            return _checkpoints[_checkpoints.length - 1].value;
-        }
-        uint256 min = 0;
-        uint256 max = _checkpoints.length - 1;
-        while (max > min) {
-            uint256 mid = (max + min) / 2;
-            if (_checkpoints[mid].checkpointId == _checkpointId) {
-                max = mid;
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',99);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',14);
+if (_checkpointId == 0) {emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',6,0);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',100);
+            emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',15);
+return 0;
+        }else { emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',6,1);}
+
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',102);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',16);
+if (_checkpoints.length == 0) {emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',7,0);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',103);
+            emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',17);
+return _currentValue;
+        }else { emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',7,1);}
+
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',105);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',18);
+if (_checkpoints[0].checkpointId >= _checkpointId) {emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',8,0);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',106);
+            emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',19);
+return _checkpoints[0].value;
+        }else { emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',8,1);}
+
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',108);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',20);
+if (_checkpoints[_checkpoints.length - 1].checkpointId < _checkpointId) {emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',9,0);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',109);
+            emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',21);
+return _currentValue;
+        }else { emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',9,1);}
+
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',111);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',22);
+if (_checkpoints[_checkpoints.length - 1].checkpointId == _checkpointId) {emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',10,0);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',112);
+            emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',23);
+return _checkpoints[_checkpoints.length - 1].value;
+        }else { emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',10,1);}
+
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',114);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',24);
+uint256 min = 0;
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',115);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',25);
+uint256 max = _checkpoints.length - 1;
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',116);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',26);
+while (max > min) {
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',117);
+            emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',27);
+uint256 mid = (max + min) / 2;
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',118);
+            emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',28);
+if (_checkpoints[mid].checkpointId == _checkpointId) {emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',11,0);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',119);
+                emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',29);
+max = mid;
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',120);
                 break;
-            }
-            if (_checkpoints[mid].checkpointId < _checkpointId) {
-                min = mid + 1;
-            } else {
-                max = mid;
+            }else { emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',11,1);}
+
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',122);
+            emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',30);
+if (_checkpoints[mid].checkpointId < _checkpointId) {emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',12,0);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',123);
+                emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',31);
+min = mid + 1;
+            } else {emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',12,1);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',125);
+                emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',32);
+max = mid;
             }
         }
-        return _checkpoints[max].value;
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',128);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',33);
+return _checkpoints[max].value;
     }
 
     /**
@@ -133,16 +224,28 @@ library TokenLib {
      * @param _checkpoints is the affected checkpoint object array
      * @param _newValue is the new value that needs to be stored
      */
-    function adjustCheckpoints(TokenLib.Checkpoint[] storage _checkpoints, uint256 _newValue, uint256 _currentCheckpointId) public {
+    function adjustCheckpoints(TokenLib.Checkpoint[] storage _checkpoints, uint256 _newValue, uint256 _currentCheckpointId) public {emit __FunctionCoverageTokenLib('./contracts/libraries/TokenLib.sol',5);
+
         //No checkpoints set yet
-        if (_currentCheckpointId == 0) {
-            return;
-        }
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',138);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',34);
+if (_currentCheckpointId == 0) {emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',13,0);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',139);
+            emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',35);
+return;
+        }else { emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',13,1);}
+
         //No new checkpoints since last update
-        if ((_checkpoints.length > 0) && (_checkpoints[_checkpoints.length - 1].checkpointId == _currentCheckpointId)) {
-            return;
-        }
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',142);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',36);
+if ((_checkpoints.length > 0) && (_checkpoints[_checkpoints.length - 1].checkpointId == _currentCheckpointId)) {emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',14,0);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',143);
+            emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',37);
+return;
+        }else { emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',14,1);}
+
         //New checkpoint, so record balance
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',146);
         _checkpoints.push(
             TokenLib.Checkpoint({
                 checkpointId: _currentCheckpointId,
@@ -167,23 +270,45 @@ library TokenLib {
         uint256 _value,
         uint256 _balanceTo,
         uint256 _balanceFrom
-        ) public  {
-        if ((_value == 0) || (_from == _to)) {
-            return;
-        }
+        ) public  {emit __FunctionCoverageTokenLib('./contracts/libraries/TokenLib.sol',6);
+
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',171);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',38);
+if ((_value == 0) || (_from == _to)) {emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',15,0);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',172);
+            emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',39);
+return;
+        }else { emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',15,1);}
+
         // Check whether receiver is a new token holder
-        if ((_balanceTo == 0) && (_to != address(0))) {
-            _investorData.investorCount = (_investorData.investorCount).add(1);
-        }
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',175);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',40);
+if ((_balanceTo == 0) && (_to != address(0))) {emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',16,0);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',176);
+            emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',41);
+_investorData.investorCount = (_investorData.investorCount).add(1);
+        }else { emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',16,1);}
+
         // Check whether sender is moving all of their tokens
-        if (_value == _balanceFrom) {
-            _investorData.investorCount = (_investorData.investorCount).sub(1);
-        }
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',179);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',42);
+if (_value == _balanceFrom) {emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',17,0);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',180);
+            emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',43);
+_investorData.investorCount = (_investorData.investorCount).sub(1);
+        }else { emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',17,1);}
+
         //Also adjust investor list
-        if (!_investorData.investorListed[_to] && (_to != address(0))) {
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',183);
+        emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',44);
+if (!_investorData.investorListed[_to] && (_to != address(0))) {emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',18,0);
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',184);
             _investorData.investors.push(_to);
-            _investorData.investorListed[_to] = true;
-        }
+emit __CoverageTokenLib('./contracts/libraries/TokenLib.sol',185);
+            emit __StatementCoverageTokenLib('./contracts/libraries/TokenLib.sol',45);
+_investorData.investorListed[_to] = true;
+        }else { emit __BranchCoverageTokenLib('./contracts/libraries/TokenLib.sol',18,1);}
+
 
     }
 

@@ -3,7 +3,13 @@ pragma solidity ^0.4.24;
 /**
  * @title Interface to be implemented by all permission manager modules
  */
-interface IPermissionManager {
+interface IPermissionManager {event __CoverageIPermissionManager(string fileName, uint256 lineNumber);
+event __FunctionCoverageIPermissionManager(string fileName, uint256 fnId);
+event __StatementCoverageIPermissionManager(string fileName, uint256 statementId);
+event __BranchCoverageIPermissionManager(string fileName, uint256 branchId, uint256 locationIdx);
+event __AssertPreCoverageIPermissionManager(string fileName, uint256 branchId);
+event __AssertPostCoverageIPermissionManager(string fileName, uint256 branchId);
+
 
     /**
     * @notice Used to check the permission on delegate corresponds to module contract address
@@ -12,7 +18,7 @@ interface IPermissionManager {
     * @param _perm Permission flag
     * @return bool
     */
-    function checkPermission(address _delegate, address _module, bytes32 _perm) external view returns(bool);
+    function checkPermission(address _delegate, address _module, bytes32 _perm) external  returns(bool);
 
     /**
     * @notice Used to add a delegate
@@ -32,7 +38,7 @@ interface IPermissionManager {
     * @param _potentialDelegate the address of potential delegate
     * @return bool
     */
-    function checkDelegate(address _potentialDelegate) external view returns(bool);
+    function checkDelegate(address _potentialDelegate) external  returns(bool);
 
     /**
     * @notice Used to provide/change the permission to the delegate corresponds to the module contract
@@ -72,7 +78,7 @@ interface IPermissionManager {
     * @param _perm Permission flag
     * @return address[]
     */
-    function getAllDelegatesWithPerm(address _module, bytes32 _perm) external view returns(address[]);
+    function getAllDelegatesWithPerm(address _module, bytes32 _perm) external  returns(address[]);
 
      /**
     * @notice Used to return all permission of a single or multiple module
@@ -82,18 +88,18 @@ interface IPermissionManager {
     * @return address[] the address array of Modules this delegate has permission
     * @return bytes32[] the permission array of the corresponding Modules
     */
-    function getAllModulesAndPermsFromTypes(address _delegate, uint8[] _types) external view returns(address[], bytes32[]);
+    function getAllModulesAndPermsFromTypes(address _delegate, uint8[] _types) external  returns(address[], bytes32[]);
 
     /**
     * @notice Used to get the Permission flag related the `this` contract
     * @return Array of permission flags
     */
-    function getPermissions() external view returns(bytes32[]);
+    function getPermissions() external  returns(bytes32[]);
 
     /**
     * @notice Used to get all delegates
     * @return address[]
     */
-    function getAllDelegates() external view returns(address[]);
+    function getAllDelegates() external  returns(address[]);
 
 }

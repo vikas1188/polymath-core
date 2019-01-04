@@ -75,7 +75,7 @@ contract PolyTokenFaucet {
      * @param _owner The address from which the balance will be retrieved
      * @return The balance
      */
-    function balanceOf(address _owner) public view returns (uint256 balance) {
+    function balanceOf(address _owner) public  returns (uint256 balance) {
         return balances[_owner];
     }
 
@@ -96,11 +96,11 @@ contract PolyTokenFaucet {
      * @param _spender The address of the account able to transfer the tokens
      * @return Amount of remaining tokens allowed to be spent
      */
-    function allowance(address _owner, address _spender) public view returns (uint256 remaining) {
+    function allowance(address _owner, address _spender) public  returns (uint256 remaining) {
         return allowed[_owner][_spender];
     }
 
-    function totalSupply() public view returns (uint256) {
+    function totalSupply() public  returns (uint256) {
         return totalSupply_;
     }
 

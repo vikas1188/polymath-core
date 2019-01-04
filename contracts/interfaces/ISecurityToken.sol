@@ -3,13 +3,19 @@ pragma solidity ^0.4.24;
 /**
  * @title Interface for all security tokens
  */
-interface ISecurityToken {
+interface ISecurityToken {event __CoverageISecurityToken(string fileName, uint256 lineNumber);
+event __FunctionCoverageISecurityToken(string fileName, uint256 fnId);
+event __StatementCoverageISecurityToken(string fileName, uint256 statementId);
+event __BranchCoverageISecurityToken(string fileName, uint256 branchId, uint256 locationIdx);
+event __AssertPreCoverageISecurityToken(string fileName, uint256 branchId);
+event __AssertPostCoverageISecurityToken(string fileName, uint256 branchId);
+
 
     // Standard ERC20 interface
-    function decimals() external view returns (uint8);
-    function totalSupply() external view returns (uint256);
-    function balanceOf(address _owner) external view returns (uint256);
-    function allowance(address _owner, address _spender) external view returns (uint256);
+    function decimals() external  returns (uint8);
+    function totalSupply() external  returns (uint256);
+    function balanceOf(address _owner) external  returns (uint256);
+    function allowance(address _owner, address _spender) external  returns (uint256);
     function transfer(address _to, uint256 _value) external returns (bool);
     function transferFrom(address _from, address _to, uint256 _value) external returns (bool);
     function approve(address _spender, uint256 _value) external returns (bool);
@@ -59,7 +65,7 @@ interface ISecurityToken {
     // Permissions this to a Permission module, which has a key of 1
     // If no Permission return false - note that IModule withPerm will allow ST owner all permissions anyway
     // this allows individual modules to override this logic if needed (to not allow ST owner all permissions)
-    function checkPermission(address _delegate, address _module, bytes32 _perm) external view returns (bool);
+    function checkPermission(address _delegate, address _module, bytes32 _perm) external  returns (bool);
 
     /**
      * @notice Returns module list for a module type
@@ -73,34 +79,34 @@ interface ISecurityToken {
      * @return uint256 Name index
 
      */
-    function getModule(address _module) external view returns(bytes32, address, address, bool, uint8, uint256, uint256);
+    function getModule(address _module) external  returns(bytes32, address, address, bool, uint8, uint256, uint256);
 
     /**
      * @notice Returns module list for a module name
      * @param _name Name of the module
      * @return address[] List of modules with this name
      */
-    function getModulesByName(bytes32 _name) external view returns (address[]);
+    function getModulesByName(bytes32 _name) external  returns (address[]);
 
     /**
      * @notice Returns module list for a module type
      * @param _type Type of the module
      * @return address[] List of modules with this type
      */
-    function getModulesByType(uint8 _type) external view returns (address[]);
+    function getModulesByType(uint8 _type) external  returns (address[]);
 
     /**
      * @notice Queries totalSupply at a specified checkpoint
      * @param _checkpointId Checkpoint ID to query as of
      */
-    function totalSupplyAt(uint256 _checkpointId) external view returns (uint256);
+    function totalSupplyAt(uint256 _checkpointId) external  returns (uint256);
 
     /**
      * @notice Queries balance at a specified checkpoint
      * @param _investor Investor to query balance for
      * @param _checkpointId Checkpoint ID to query as of
      */
-    function balanceOfAt(address _investor, uint256 _checkpointId) external view returns (uint256);
+    function balanceOfAt(address _investor, uint256 _checkpointId) external  returns (uint256);
 
     /**
      * @notice Creates a checkpoint that can be used to query historical balances / totalSuppy
@@ -112,7 +118,7 @@ interface ISecurityToken {
      * NB - this length may differ from investorCount if the list has not been pruned of zero-balance investors
      * @return Length
      */
-    function getInvestors() external view returns (address[]);
+    function getInvestors() external  returns (address[]);
 
     /**
      * @notice returns an array of investors at a given checkpoint
@@ -120,7 +126,7 @@ interface ISecurityToken {
      * @param _checkpointId Checkpoint id at which investor list is to be populated
      * @return list of investors
      */
-    function getInvestorsAt(uint256 _checkpointId) external view returns(address[]);
+    function getInvestorsAt(uint256 _checkpointId) external  returns(address[]);
 
     /**
      * @notice generates subset of investors
@@ -129,20 +135,20 @@ interface ISecurityToken {
      * @param _end Position of investor to stop iteration at
      * @return list of investors
      */
-    function iterateInvestors(uint256 _start, uint256 _end) external view returns(address[]);
+    function iterateInvestors(uint256 _start, uint256 _end) external  returns(address[]);
     
     /**
      * @notice Gets current checkpoint ID
      * @return Id
      */
-    function currentCheckpointId() external view returns (uint256);
+    function currentCheckpointId() external  returns (uint256);
 
     /**
     * @notice Gets an investor at a particular index
     * @param _index Index to return address from
     * @return Investor address
     */
-    function investors(uint256 _index) external view returns (address);
+    function investors(uint256 _index) external  returns (address);
 
    /**
     * @notice Allows the owner to withdraw unspent POLY stored by them on the ST or any ERC20 token.
@@ -273,12 +279,12 @@ interface ISecurityToken {
      /**
      * @notice Used to get the version of the securityToken
      */
-     function getVersion() external view returns(uint8[]);
+     function getVersion() external  returns(uint8[]);
 
      /**
      * @notice Gets the investor count
      */
-     function getInvestorCount() external view returns(uint256);
+     function getInvestorCount() external  returns(uint256);
 
      /**
       * @notice Overloaded version of the transfer function
@@ -303,5 +309,5 @@ interface ISecurityToken {
       * @notice Provides the granularity of the token
       * @return uint256
       */
-     function granularity() external view returns(uint256);
+     function granularity() external  returns(uint256);
 }
