@@ -15,7 +15,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/math/Math.sol";
 
 /**
- * @title Checkpoint module for issuing ether dividends
+ * @title Checkpoint module for issuing Ether dividends
  * @dev abstract contract
  */
 contract DividendCheckpoint is DividendCheckpointStorage, ICheckpoint, Module {
