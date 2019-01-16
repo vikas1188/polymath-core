@@ -114,17 +114,17 @@ contract SignedTransferManager is TransferManager {
     * Signer needs to be in the signers mapping
     */
     function invalidSignature(address _from, address _to, uint256 _amount, bytes memory _data) public {
-        require(signers[msg.sender] == true, "Only signer is allowed to invalid signature.");
-        require(invalidSignatures[_data] != true, "This signature is invalid.");
+        // require(signers[msg.sender] == true, "Only signer is allowed to invalid signature.");
+        // require(invalidSignatures[_data] != true, "This signature is invalid.");
 
-        bytes32 hash = keccak256(abi.encodePacked(this, _from, _to, _amount));
-        bytes32 prependedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
+        // bytes32 hash = keccak256(abi.encodePacked(this, _from, _to, _amount));
+        // bytes32 prependedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
 
-        // return signer;
-        require(_recoverSignerAdd(prependedHash,_data) == msg.sender, "Incorrect Signer for this signature");
+        // // return signer;
+        // require(_recoverSignerAdd(prependedHash,_data) == msg.sender, "Incorrect Signer for this signature");
 
-        invalidSignatures[_data] = true;
-        emit InvalidSignature(_data);
+        // invalidSignatures[_data] = true;
+        // emit InvalidSignature(_data);
     }
 
     /**

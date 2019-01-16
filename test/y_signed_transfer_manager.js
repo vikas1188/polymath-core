@@ -15,6 +15,7 @@ const SignedTransferManager = artifacts.require("./SignedTransferManager");
 
 const Web3 = require("web3");
 const BigNumber = require("bignumber.js");
+let BN = Web3.utils.BN;
 const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545")); // Hardcoded development port
 
 contract("SignedTransferManager", accounts => {
@@ -79,8 +80,11 @@ contract("SignedTransferManager", accounts => {
     const someString = "A string which is not used";
     const STOParameters = ["uint256", "uint256", "uint256", "string"];
 
+    let currentTime;
+
     before(async () => {
         // Accounts setup
+        currentTime = new BN(await latestTime());
         account_polymath = accounts[0];
         account_issuer = accounts[1];
 
@@ -133,7 +137,7 @@ contract("SignedTransferManager", accounts => {
         `);
     });
 
-    describe("Generate the SecurityToken", async () => {
+ describe("Generate the SecurityToken", async () => {
         it("Should register the ticker before the generation of the security token", async () => {
             await I_PolyToken.approve(I_STRProxied.address, initRegFee, { from: token_owner });
             let tx = await I_STRProxied.registerTicker(token_owner, symbol, contact, { from: token_owner });
@@ -143,24 +147,24 @@ contract("SignedTransferManager", accounts => {
 
         it("Should generate the new security token with the same symbol as registered above", async () => {
             await I_PolyToken.approve(I_STRProxied.address, initRegFee, { from: token_owner });
-            let _blockNo = latestBlock();
+            
             let tx = await I_STRProxied.generateSecurityToken(name, symbol, tokenDetails, false, { from: token_owner });
 
             // Verify the successful generation of the security token
-            assert.equal(tx.logs[1].args._ticker, symbol.toUpperCase(), "SecurityToken doesn't get deployed");
+            assert.equal(tx.logs[2].args._ticker, symbol.toUpperCase(), "SecurityToken doesn't get deployed");
 
-            I_SecurityToken = SecurityToken.at(tx.logs[1].args._securityTokenAddress);
+            I_SecurityToken = await SecurityToken.at(tx.logs[2].args._securityTokenAddress);
 
-            const log = await promisifyLogWatch(I_SecurityToken.ModuleAdded({ from: _blockNo }), 1);
+            const log = (await I_SecurityToken.getPastEvents('ModuleAdded', {filter: {transactionHash: tx.transactionHash}}))[0];
 
             // Verify that GeneralTransferManager module get added successfully or not
             assert.equal(log.args._types[0].toNumber(), 2);
-            assert.equal(web3.utils.toUtf8(log.args._name), "GeneralTransferManager");
+            assert.equal(web3.utils.toAscii(log.args._name).replace(/\u0000/g, ""), "GeneralTransferManager");
         });
 
         it("Should intialize the auto attached modules", async () => {
             let moduleData = (await I_SecurityToken.getModulesByType(2))[0];
-            I_GeneralTransferManager = GeneralTransferManager.at(moduleData);
+            I_GeneralTransferManager = await GeneralTransferManager.at(moduleData);
         });
     });
 
@@ -172,13 +176,12 @@ contract("SignedTransferManager", accounts => {
 
             let tx = await I_GeneralTransferManager.modifyWhitelist(
                 account_investor1,
-                latestTime(),
-                latestTime(),
-                latestTime() + duration.days(10),
+                currentTime,
+                currentTime,
+                currentTime.add(new BN(duration.days(10))),
                 true,
                 {
-                    from: account_issuer,
-                    gas: 6000000
+                    from: account_issuer
                 }
             );
 
@@ -192,20 +195,22 @@ contract("SignedTransferManager", accounts => {
             await increaseTime(5000);
 
             // Mint some tokens
-            await I_SecurityToken.mint(account_investor1, web3.utils.toWei("4", "ether"), { from: token_owner });
+            await I_SecurityToken.mint(account_investor1, new BN(web3.utils.toWei("2", "ether")), { from: token_owner });
 
-            assert.equal((await I_SecurityToken.balanceOf(account_investor1)).toNumber(), web3.utils.toWei("4", "ether"));
+            assert.equal((await I_SecurityToken.balanceOf(account_investor1)).toString(), new BN(web3.utils.toWei("2", "ether")).toString());
         });
 
+
         it("Should successfully attach the SignedTransferManager with the security token", async () => {
-            const tx = await I_SecurityToken.addModule(I_SignedTransferManagerFactory.address, "", 0, 0, { from: token_owner });
+            const tx = await I_SecurityToken.addModule(I_SignedTransferManagerFactory.address, new BN(0),new BN(0),new BN(0), { from: token_owner });
             assert.equal(tx.logs[2].args._types[0].toNumber(), transferManagerKey, "SignedTransferManager doesn't get deployed");
             assert.equal(
                 web3.utils.toUtf8(tx.logs[2].args._name),
                 "SignedTransferManager",
                 "SignedTransferManager module was not added"
             );
-            I_SignedTransferManager = SignedTransferManager.at(tx.logs[2].args._module);
+            console.log(tx.logs[2].args);
+            I_SignedTransferManager = await SignedTransferManager.at(tx.logs[2].args._module);
         });
 
         it("should fail to transfer because transaction is not verified yet.", async () => {
@@ -226,6 +231,9 @@ contract("SignedTransferManager", accounts => {
 
 
         it("should be able to invalid siganture if sender is the signer and is in the signer list", async () => {
+            
+            console.log("1");
+
             const sig = signDataVerifyTransfer(
                 I_SignedTransferManager.address,
                 account_investor1,
@@ -237,6 +245,7 @@ contract("SignedTransferManager", accounts => {
             console.log("token owner is "+ token_owner);
 
             await I_SignedTransferManager.invalidSignature(account_investor1, account_investor2, web3.utils.toWei("2", "ether"), sig, {from: token_owner});
+            console.log("sd");
             assert.equal(await I_SignedTransferManager.checkSignatureIsInvalid(sig), true);
         });
 
