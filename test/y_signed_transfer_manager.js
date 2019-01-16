@@ -234,7 +234,7 @@ contract("SignedTransferManager", accounts => {
             
             console.log("1");
 
-            const sig = signDataVerifyTransfer(
+            const sig = await signDataVerifyTransfer(
                 I_SignedTransferManager.address,
                 account_investor1,
                 account_investor2,
@@ -243,6 +243,7 @@ contract("SignedTransferManager", accounts => {
             );
 
             console.log("token owner is "+ token_owner);
+            console.log(sig);
 
             await I_SignedTransferManager.invalidSignature(account_investor1, account_investor2, web3.utils.toWei("2", "ether"), sig, {from: token_owner});
             console.log("sd");
@@ -253,7 +254,7 @@ contract("SignedTransferManager", accounts => {
 
             console.log("owner is a signer status is " + await I_SignedTransferManager.signers(token_owner, {from: token_owner}));
 
-            const sig = signDataVerifyTransfer(
+            const sig = await signDataVerifyTransfer(
                 I_SignedTransferManager.address,
                 account_investor1,
                 account_investor2,
@@ -272,7 +273,7 @@ contract("SignedTransferManager", accounts => {
         });
 
         it("should not allow transfer if the sig is already used", async () => {
-            const sig = signDataVerifyTransfer(
+            const sig = await signDataVerifyTransfer(
                  I_SignedTransferManager.address,
                  account_investor1,
                  account_investor2,
@@ -286,7 +287,7 @@ contract("SignedTransferManager", accounts => {
         });
 
         it("should not allow transfer if the signer is not on the signer list", async () => {
-           const sig = signDataVerifyTransfer(
+           const sig = await signDataVerifyTransfer(
                 I_SignedTransferManager.address,
                 account_investor1,
                 account_investor2,

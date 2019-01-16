@@ -19,8 +19,7 @@ function signData(tmAddress, investorAddress, fromTime, toTime, expiryTime, rest
 }
 
 // sign data for verify tranfer function
-function signDataVerifyTransfer (tmAddress, fromAddress, toAddress, amount, account) {
-
+async function signDataVerifyTransfer (tmAddress, fromAddress, toAddress, amount, account) {
     console.log("1");
     let packedData = utils
         .solidityKeccak256(
@@ -39,7 +38,7 @@ function signDataVerifyTransfer (tmAddress, fromAddress, toAddress, amount, acco
     console.log("5 " + account);
     console.log("data is " + packedData);
     // return web3.eth.sign(account,packedData);
-    return web3.eth.sign(packedData, account, function (err, result) { console.log(err, result); });
+    return web3.eth.sign(packedData, account);
 }
 
 module.exports = {
