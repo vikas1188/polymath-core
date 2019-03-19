@@ -68,21 +68,10 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
     event TreasuryWalletChanged(address _oldTreasuryWallet, address _newTreasuryWallet);
     event DisableController();
 
-    function _isModule(address _module, uint8 _type) internal view returns(bool) {
-        if (modulesToData[_module].module != _module || modulesToData[_module].isArchived)
-            return false;
-        for (uint256 i = 0; i < modulesToData[_module].moduleTypes.length; i++) {
-            if (modulesToData[_module].moduleTypes[i] == _type) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     // Require msg.sender to be the specified module type or the owner of the token
     function _onlyModuleOrOwner(uint8 _type) internal view {
         if (msg.sender != owner())
-            require(_isModule(msg.sender, _type));
+            require(isModule(msg.sender, _type));
     }
 
     function _zeroAddressCheck(address _entity) internal pure {
@@ -95,7 +84,7 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
 
     // Require msg.sender to be the specified module type
     modifier onlyModule(uint8 _type) {
-        require(_isModule(msg.sender, _type));
+        require(isModule(msg.sender, _type));
         _;
     }
 
@@ -141,7 +130,7 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
     )
         public
         ERC20Detailed(_name, _symbol, _decimals)
-    {   
+    {
         _zeroAddressCheck(_polymathRegistry);
         _zeroAddressCheck(_delegate);
         polymathRegistry = _polymathRegistry;
@@ -252,10 +241,8 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
     * @param _tokenContract Address of the ERC20Basic compliance token
     * @param _value amount of POLY to withdraw
     */
-    function withdrawERC20(address _tokenContract, uint256 _value) external onlyOwner {
-        require(_tokenContract != address(0));
-        IERC20 token = IERC20(_tokenContract);
-        require(token.transfer(owner(), _value));
+    function withdrawERC20(IERC20 _tokenContract, uint256 _value) external onlyOwner {
+        require(_tokenContract.transfer(owner(), _value));
     }
 
     /**
@@ -298,7 +285,7 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
 
     /**
      * @notice Allows to change the treasury wallet address
-     * @param _wallet Ethereum address of the treasury wallet 
+     * @param _wallet Ethereum address of the treasury wallet
      */
     function changeTreasuryWallet(address _wallet) external onlyOwner {
         _zeroAddressCheck(_wallet);
@@ -313,7 +300,7 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
     * @param _value value of transfer
     */
     function _adjustInvestorCount(address _from, address _to, uint256 _value) internal {
-        holderCount = TokenLib.adjustInvestorCount(holderCount, _from, _to, _value, balanceOf(_to), balanceOf(_from), dataStore);
+        TokenLib.adjustInvestorCount(holderCount, _from, _to, _value, balanceOf(_to), balanceOf(_from), dataStore);
     }
 
     /**
@@ -341,7 +328,11 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
      * @param _investor address of the token holder affected
      */
     function _adjustBalanceCheckpoints(address _investor) internal {
-        TokenLib.adjustCheckpoints(checkpointBalances[_investor], balanceOf(_investor), currentCheckpointId);
+        uint256 initialBalance = balanceOf(_investor);
+        //Idea is that we don't need to add users' info in the checkpoint balances before they have some positive balance.
+        if (initialBalance > 0 || checkpointBalances[_investor].length > 0) {
+            TokenLib.adjustCheckpoints(checkpointBalances[_investor], initialBalance, currentCheckpointId);
+        }
     }
 
     /**
@@ -417,6 +408,7 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
         //checkpoints as though they have been created before the current transactions,
         //  - to avoid the situation where a transfer manager transfers tokens, and this function is called recursively,
         //the function is marked as nonReentrant. This means that no TM can transfer (or mint / burn) tokens.
+
         _adjustInvestorCount(_from, _to, _value);
         bool verified = _executeTransfer(_from, _to, _value, _data);
         _adjustBalanceCheckpoints(_from);
@@ -445,10 +437,10 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
         returns(bool)
     {
         if (!transfersFrozen) {
-            bool isInvalid = false;
-            bool isValid = false;
-            bool isForceValid = false;
-            bool unarchived = false;
+            bool isInvalid;
+            bool isValid;
+            bool isForceValid;
+            bool unarchived;
             address module;
             for (uint256 i = 0; i < modules[TRANSFER_KEY].length; i++) {
                 module = modules[TRANSFER_KEY][i];
@@ -507,8 +499,18 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
     )
         public
         isIssuanceAllowed
-    {   
-        _onlyModuleOrOwner(MINT_KEY); 
+    {
+        _onlyModuleOrOwner(MINT_KEY);
+        _issue(_tokenHolder, _value, _data);
+    }
+
+    function _issue(
+        address _tokenHolder,
+        uint256 _value,
+        bytes memory _data
+    )
+        internal
+    {
         // Add a function to validate the `_data` parameter
         _isValidTransfer(_updateTransfer(address(0), _tokenHolder, _value, _data));
         _mint(_tokenHolder, _value);
@@ -522,10 +524,11 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
      * @param _values A list of number of tokens get minted and transfer to corresponding address of the investor from _tokenHolders[] list
      * @return success
      */
-    function issueMulti(address[] calldata _tokenHolders, uint256[] calldata _values) external {
+    function issueMulti(address[] calldata _tokenHolders, uint256[] calldata _values) external isIssuanceAllowed {
+        _onlyModuleOrOwner(MINT_KEY);
         require(_tokenHolders.length == _values.length, "Incorrect inputs");
         for (uint256 i = 0; i < _tokenHolders.length; i++) {
-            issue(_tokenHolders[i], _values[i], "");
+            _issue(_tokenHolders[i], _values[i], "");
         }
     }
 
@@ -547,7 +550,14 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
      * @param _type type to check against
      */
     function isModule(address _module, uint8 _type) public view returns(bool) {
-        return _isModule(_module, _type);
+        if (modulesToData[_module].module != _module || modulesToData[_module].isArchived)
+            return false;
+        for (uint256 i = 0; i < modulesToData[_module].moduleTypes.length; i++) {
+            if (modulesToData[_module].moduleTypes[i] == _type) {
+                return true;
+            }
+        }
+        return false;
     }
 
     function _checkAndBurn(address _from, uint256 _value, bytes memory _data) internal returns(bool) {
@@ -579,7 +589,7 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
      */
     function createCheckpoint() external returns(uint256) {
         _onlyModuleOrOwner(CHECKPOINT_KEY);
-        require(currentCheckpointId < 2 ** 256 - 1);
+        //currentCheckpointId can only be incremented by 1 so there is no chance of overflowing the uint256
         currentCheckpointId = currentCheckpointId + 1;
         /*solium-disable-next-line security/no-block-members*/
         checkpointTimes.push(now);
@@ -594,7 +604,7 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
      * @param _controller address of the controller
      */
     function setController(address _controller) public onlyOwner {
-        require(_isControllable());
+        require(isControllable());
         emit SetController(controller, _controller);
         controller = _controller;
     }
@@ -604,7 +614,7 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
      * @dev enabled via feature switch "disableControllerAllowed"
      */
     function disableController() external isEnabled("disableControllerAllowed") onlyOwner {
-        require(_isControllable());
+        require(isControllable());
         controllerDisabled = true;
         delete controller;
         emit DisableController();
@@ -702,23 +712,14 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
     }
 
     /**
-     * @notice Internal function to know whether the controller functionality
-     * allowed or not.
-     * @return bool `true` when controller address is non-zero otherwise return `false`.
-     */
-    function _isControllable() internal view returns (bool) {
-        return !controllerDisabled;
-    }
-
-    /**
      * @notice In order to provide transparency over whether `controllerTransfer` / `controllerRedeem` are useable
      * or not `isControllable` function will be used.
      * @dev If `isControllable` returns `false` then it always return `false` and
      * `controllerTransfer` / `controllerRedeem` will always revert.
      * @return bool `true` when controller address is non-zero otherwise return `false`.
      */
-    function isControllable() external view returns (bool) {
-        return _isControllable();
+    function isControllable() public view returns (bool) {
+        return !controllerDisabled;
     }
 
     /**
@@ -735,7 +736,7 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
      * for calling this function (aka force transfer) which provides the transparency on-chain).
      */
     function controllerTransfer(address _from, address _to, uint256 _value, bytes calldata _data, bytes calldata _operatorData) external onlyController {
-        require(_isControllable());
+        require(isControllable());
         _updateTransfer(_from, _to, _value, _data);
         _transfer(_from, _to, _value);
         emit ControllerTransfer(msg.sender, _from, _to, _value, _data, _operatorData);
@@ -754,7 +755,7 @@ contract SecurityToken is ERC20, ERC20Detailed, Ownable, ReentrancyGuard, Securi
      * for calling this function (aka force transfer) which provides the transparency on-chain).
      */
     function controllerRedeem(address _tokenHolder, uint256 _value, bytes calldata _data, bytes calldata _operatorData) external onlyController {
-        require(_isControllable());
+        require(isControllable());
         _checkAndBurn(_tokenHolder, _value, _data);
         emit ControllerRedemption(msg.sender, _tokenHolder, _value, _data, _operatorData);
     }

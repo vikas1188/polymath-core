@@ -27,13 +27,13 @@ contract STFactoryMock is ISTFactory {
         string calldata _symbol,
         uint8 _decimals,
         string calldata _tokenDetails,
-        address _issuer,
+        address /*_issuer*/,
         bool _divisible,
         address _treasuryWallet,
         address _polymathRegistry
-    ) 
-        external 
-        returns(address) 
+    )
+        external
+        returns(address)
     {
         SecurityTokenMock newSecurityToken = new SecurityTokenMock(
             _name,
@@ -48,7 +48,7 @@ contract STFactoryMock is ISTFactory {
         newSecurityToken.changeDataStore(dataStoreFactory.generateDataStore(address(newSecurityToken)));
         newSecurityToken.changeTreasuryWallet(_treasuryWallet);
         newSecurityToken.addModule(transferManagerFactory, "", 0, 0);
-        newSecurityToken.transferOwnership(_issuer);
+        //newSecurityToken.transferOwnership(_issuer);
         return address(newSecurityToken);
     }
 }

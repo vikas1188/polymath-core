@@ -279,7 +279,7 @@ contract("Checkpoints", async function(accounts) {
                     } else {
                         amount = new BN(await I_SecurityToken.balanceOf(sender)).mul(new BN(m)).div(new BN(10));
                     }
-                    console.log("Sender: " + sender + " Receiver: " + receiver + " Amount: " + JSON.stringify(amount));
+                    console.log("Sender: " + sender + " Receiver: " + receiver + " Amount: " + amount.toString());
                     await I_SecurityToken.transfer(receiver, amount, { from: sender });
                 }
                 if (Math.random() > 0.5) {
@@ -327,7 +327,7 @@ contract("Checkpoints", async function(accounts) {
                     assert.isTrue(totalSupply.eq(ts[k]));
                     console.log("Checking Balances: " + balances + " is " + cps[k] + " at checkpoint: " + (k + 1));
                     for (let l = 0; l < cps[k].length; l++) {
-                        // console.log(balances[l].toString(), cps[k][l].toString());
+                        console.log(balances[l].toString(), cps[k][l].toString());
                         assert.isTrue(balances[l].eq(cps[k][l]));
                     }
                 }
