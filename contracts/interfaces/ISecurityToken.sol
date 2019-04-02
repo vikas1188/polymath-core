@@ -18,6 +18,10 @@ interface ISecurityToken {
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
 
+    function name() external view returns (string);
+    function symbol() external view returns (string);
+    function tokenDetails() external view returns (string);
+
     //transfer, transferFrom must respect the result of verifyTransfer
     function verifyTransfer(address _from, address _to, uint256 _value) external returns (bool success);
 
@@ -62,18 +66,15 @@ interface ISecurityToken {
     function checkPermission(address _delegate, address _module, bytes32 _perm) external view returns (bool);
 
     /**
-     * @notice Returns module list for a module type
-     * @param _module Address of the module
-     * @return bytes32 Name
-     * @return address Module address
-     * @return address Module factory address
-     * @return bool Module archived
-     * @return uint8 Module type
-     * @return uint256 Module index
-     * @return uint256 Name index
-
+     * @notice Returns the data associated to a module
+     * @param _module address of the module
+     * @return bytes32 name
+     * @return address module address
+     * @return address module factory address
+     * @return bool module archived
+     * @return uint8 module type
      */
-    function getModule(address _module) external view returns(bytes32, address, address, bool, uint8, uint256, uint256);
+    function getModule(address _module) external view returns(bytes32, address, address, bool, uint8[]);
 
     /**
      * @notice Returns module list for a module name
@@ -130,7 +131,7 @@ interface ISecurityToken {
      * @return list of investors
      */
     function iterateInvestors(uint256 _start, uint256 _end) external view returns(address[]);
-    
+
     /**
      * @notice Gets current checkpoint ID
      * @return Id

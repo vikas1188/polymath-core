@@ -5,6 +5,7 @@ import "./interfaces/IOwnable.sol";
 import "./interfaces/ISTFactory.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/ISecurityTokenRegistry.sol";
+import "./interfaces/ISecurityToken.sol";
 import "./storage/EternalStorage.sol";
 import "./libraries/Util.sol";
 import "./libraries/Encoder.sol";
@@ -226,13 +227,13 @@ contract SecurityTokenRegistry is ISecurityTokenRegistry, EternalStorage {
      * @notice Internal - Sets the details of the ticker
      */
     function _addTicker(
-        address _owner, 
-        string _ticker, 
-        string _tokenName, 
-        uint256 _registrationDate, 
-        uint256 _expiryDate, 
-        bool _status, 
-        bool _fromAdmin, 
+        address _owner,
+        string _ticker,
+        string _tokenName,
+        uint256 _registrationDate,
+        uint256 _expiryDate,
+        bool _status,
+        bool _fromAdmin,
         uint256 _fee
         ) internal {
         _setTickerOwnership(_owner, _ticker);
@@ -556,6 +557,43 @@ contract SecurityTokenRegistry is ISecurityTokenRegistry, EternalStorage {
         set(Encoder.getKey("tickerToSecurityToken", ticker), newSecurityTokenAddress);
         /*solium-disable-next-line security/no-block-members*/
         emit NewSecurityToken(ticker, _name, newSecurityTokenAddress, msg.sender, now, msg.sender, false, launchFee);
+    }
+
+    /**
+     * @notice Deploys an instance of a new Security Token and replaces the old one in the registry
+     * @dev This function needs to be in STR 3.0. Defined public to avoid stack overflow
+     * @param _name is the name of the token
+     * @param _ticker is the ticker symbol of the security token
+     * @param _tokenDetails is the off-chain details of the token
+     * @param _divisible is whether or not the token is divisible
+     */
+    function upgradeSecurityToken(string _name, string _ticker, string _tokenDetails, bool _divisible)
+        public whenNotPausedOrOwner returns (address)
+    {
+        require(bytes(_name).length > 0 && bytes(_ticker).length > 0, "Ticker length > 0");
+        string memory ticker = Util.upper(_ticker);
+        bytes32 statusKey = Encoder.getKey("registeredTickers_status", ticker);
+        require(getBoolValue(statusKey), "not deployed");
+        address st = getAddressValue(Encoder.getKey("tickerToSecurityToken", ticker));
+        (bytes32 moduleName, , , , uint8[] memory moduleTypes) = ISecurityToken(st).getModule(msg.sender);
+        require(moduleName != bytes32(0) && moduleTypes[0] == 7, "Not authorised");
+        address stOwner = IOwnable(st).owner();
+        address newSecurityTokenAddress = ISTFactory(getSTFactoryAddress()).deployToken(
+            _name,
+            ticker,
+            18,
+            _tokenDetails,
+            stOwner,
+            _divisible,
+            getAddressValue(POLYMATHREGISTRY)
+        );
+
+        /*solium-disable-next-line security/no-block-members*/
+        _storeSecurityTokenData(newSecurityTokenAddress, ticker, _tokenDetails, now);
+        set(Encoder.getKey("tickerToSecurityToken", ticker), newSecurityTokenAddress);
+        /*solium-disable-next-line security/no-block-members*/
+        emit NewSecurityToken(ticker, _name, newSecurityTokenAddress, stOwner, now, _tickerOwner(ticker), false, getSecurityTokenLaunchFee());
+        return newSecurityTokenAddress;
     }
 
     /**

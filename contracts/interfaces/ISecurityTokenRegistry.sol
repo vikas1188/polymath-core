@@ -15,6 +15,16 @@ interface ISecurityTokenRegistry {
     function generateSecurityToken(string _name, string _ticker, string _tokenDetails, bool _divisible) external;
 
     /**
+     * @notice Deploys an instance of a new Security Token and replaces the old one in the registry
+     * @dev This function needs to be in STR 3.0
+     * @param _name is the name of the token
+     * @param _ticker is the ticker symbol of the security token
+     * @param _tokenDetails is the off-chain details of the token
+     * @param _divisible is whether or not the token is divisible
+     */
+    function upgradeSecurityToken(string _name, string _ticker, string _tokenDetails, bool _divisible) public returns (address);
+
+    /**
      * @notice Adds a new custom Security Token and saves it to the registry. (Token should follow the ISecurityToken interface)
      * @param _name Name of the token
      * @param _ticker Ticker of the security token
