@@ -59,11 +59,11 @@ module.exports = {
   },
   compilers: {
     solc: {
-      version: "native",  
+      version: "0.5.8",
       settings: {
         optimizer: {
-          enabled: true, 
-          runs: 200    
+          enabled: true,
+          runs: 200
         }
       }
     }

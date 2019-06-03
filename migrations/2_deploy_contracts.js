@@ -160,60 +160,23 @@ module.exports = function(deployer, network, accounts) {
         ]
     };
 
-    const functionSignatureProxy = {
-        name: "initialize",
-        type: "function",
-        inputs: [
-            {
-                type: "address",
-                name: "_polymathRegistry"
-            },
-            {
-                type: "uint256",
-                name: "_stLaunchFee"
-            },
-            {
-                type: "uint256",
-                name: "_tickerRegFee"
-            },
-            {
-                type: "address",
-                name: "_owner"
-            },
-            {
-                type: 'address',
-                name: '_getterContract'
-            }
-        ]
-    };
-
-    const functionSignatureProxyMR = {
-        name: "initialize",
-        type: "function",
-        inputs: [
-            {
-                type: "address",
-                name: "_polymathRegistry"
-            },
-            {
-                type: "address",
-                name: "_owner"
-            }
-        ]
-    };
-
     // POLYMATH NETWORK Configuration :: DO THIS ONLY ONCE
     // A) Deploy the PolymathRegistry contract
     return deployer
-        .deploy(PolymathRegistry, { from: PolymathAccount })
+        .deploy(ModuleRegistry, { from: PolymathAccount })
         .then(() => {
-            return PolymathRegistry.deployed();
-        })
-        .then(_polymathRegistry => {
-            polymathRegistry = _polymathRegistry;
-            return polymathRegistry.changeAddress("PolyToken", PolyToken, { from: PolymathAccount });
+            return deployer.deploy(SecurityTokenRegistry, { from: PolymathAccount });
         })
         .then(() => {
+            const PolymathRegistryArtifact = require('../build_old/contracts/PolymathRegistry.json');
+            const address = PolymathRegistryArtifact.networks[15].address;
+            return PolymathRegistry.at(address);
+        })
+        .then((PR) => {
+            return PR.getAddress("ModuleRegistry");
+        })
+        .then((address) => {
+            console.log(address);
             // Deploy libraries
             return deployer.deploy(TokenLib, { from: PolymathAccount });
         })
@@ -229,25 +192,16 @@ module.exports = function(deployer, network, accounts) {
             deployer.link(TokenLib, STGetter);
             deployer.link(TokenLib, MockSTGetter);
             // A) Deploy the ModuleRegistry Contract (It contains the list of verified ModuleFactory)
-            return deployer.deploy(ModuleRegistry, { from: PolymathAccount });
-        })
-        .then(() => {
-            return deployer.deploy(ModuleRegistryProxy, { from: PolymathAccount });
-        })
-        .then(() => {
-            return ModuleRegistryProxy.at(ModuleRegistryProxy.address);
+            const ModuleRegistryProxyArtifact = require('../build_old/contracts/ModuleRegistryProxy.json');
+            const address = ModuleRegistryProxyArtifact.networks[15].address;
+            return ModuleRegistryProxy.at(address);
         })
         .then(moduleRegistryProxy => {
-            let bytesProxyMR = web3.eth.abi.encodeFunctionCall(functionSignatureProxyMR, [polymathRegistry.address, PolymathAccount]);
-            return moduleRegistryProxy.upgradeToAndCall("1.0.0", ModuleRegistry.address, bytesProxyMR, { from: PolymathAccount });
+            console.log(moduleRegistryProxy.address);
+            return moduleRegistryProxy.upgradeTo("3.0.0", ModuleRegistry.address, { from: PolymathAccount });
         })
         .then(() => {
             return ModuleRegistry.at(ModuleRegistryProxy.address);
-        })
-        .then(moduleRegistryInstance => {
-            moduleRegistry = moduleRegistryInstance;
-            // Add module registry to polymath registry
-            return polymathRegistry.changeAddress("ModuleRegistry", ModuleRegistryProxy.address, { from: PolymathAccount });
         })
         .then(() => {
             // B) Deploy the GeneralTransferManagerLogic Contract (Factory used to generate the GeneralTransferManager contract and this
@@ -387,23 +341,15 @@ module.exports = function(deployer, network, accounts) {
             return deployer.deploy(SecurityTokenRegistry, { from: PolymathAccount });
         })
         .then(() => {
-            return deployer.deploy(SecurityTokenRegistryProxy, { from: PolymathAccount });
-        })
-        .then(() => {
             return deployer.deploy(STRGetter, {from: PolymathAccount});
         })
         .then(() => {
-            return SecurityTokenRegistryProxy.at(SecurityTokenRegistryProxy.address);
+            const SecurityTokenRegistryProxyArtifact = require('../build_old/contracts/SecurityTokenRegistryProxy.json');
+            const address = SecurityTokenRegistryProxyArtifact.networks[15].address;
+            return SecurityTokenRegistryProxy.at(address);
         })
         .then((securityTokenRegistryProxy) => {
-            let bytesProxy = web3.eth.abi.encodeFunctionCall(functionSignatureProxy, [
-                PolymathRegistry.address,
-                initRegFee,
-                initRegFee,
-                PolymathAccount,
-                STRGetter.address
-            ]);
-            return securityTokenRegistryProxy.upgradeToAndCall("1.0.0", SecurityTokenRegistry.address, bytesProxy, {
+            return securityTokenRegistryProxy.upgradeTo("3.0.0", SecurityTokenRegistry.address, {
                 from: PolymathAccount
             });
         })
@@ -418,14 +364,6 @@ module.exports = function(deployer, network, accounts) {
         })
         .then((securityTokenRegistry) => {
             return securityTokenRegistry.setLatestVersion(3, 0, 0);
-        })
-        .then(() => {
-            // Assign the address into the SecurityTokenRegistry key
-            return polymathRegistry.changeAddress("SecurityTokenRegistry", SecurityTokenRegistryProxy.address, { from: PolymathAccount });
-        })
-        .then(() => {
-            // Update all addresses into the registry contract by calling the function updateFromregistry
-            return moduleRegistry.updateFromRegistry({ from: PolymathAccount });
         })
         .then(() => {
             // D) Register the PercentageTransferManagerFactory in the ModuleRegistry to make the factory available at the protocol level.
