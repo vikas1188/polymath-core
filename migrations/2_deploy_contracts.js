@@ -55,6 +55,8 @@ module.exports = function(deployer, network, accounts) {
     let PolymathAccount;
     let moduleRegistry;
     let polymathRegistry;
+    let moduleRegProxy;
+    let stRegProxy;
     let web3;
     if (network === "development") {
         web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
@@ -173,10 +175,7 @@ module.exports = function(deployer, network, accounts) {
             return PolymathRegistry.at(address);
         })
         .then((PR) => {
-            return PR.getAddress("ModuleRegistry");
-        })
-        .then((address) => {
-            console.log(address);
+            polymathRegistry = PR;
             // Deploy libraries
             return deployer.deploy(TokenLib, { from: PolymathAccount });
         })
@@ -197,13 +196,14 @@ module.exports = function(deployer, network, accounts) {
             return ModuleRegistryProxy.at(address);
         })
         .then(moduleRegistryProxy => {
-            console.log(moduleRegistryProxy.address);
-            return moduleRegistryProxy.upgradeTo("3.0.0", ModuleRegistry.address, { from: PolymathAccount });
+            moduleRegProxy = moduleRegistryProxy;
+            return moduleRegProxy.upgradeTo("3.0.0", ModuleRegistry.address, { from: PolymathAccount });
         })
         .then(() => {
-            return ModuleRegistry.at(ModuleRegistryProxy.address);
+            return ModuleRegistry.at(moduleRegProxy.address);
         })
-        .then(() => {
+        .then((modeReg) => {
+            moduleRegistry = modeReg;
             // B) Deploy the GeneralTransferManagerLogic Contract (Factory used to generate the GeneralTransferManager contract and this
             // manager attach with the securityToken contract at the time of deployment)
             return deployer.deploy(GeneralTransferManagerLogic, nullAddress, nullAddress, { from: PolymathAccount });
@@ -329,14 +329,6 @@ module.exports = function(deployer, network, accounts) {
             return deployer.deploy(STFactory, polymathRegistry.address, GeneralTransferManagerFactory.address, DataStoreFactory.address, "3.0.0", SecurityTokenLogic.address, tokenInitBytesCall, { from: PolymathAccount });
         })
         .then(() => {
-            // K) Deploy the FeatureRegistry contract to control feature switches
-            return deployer.deploy(FeatureRegistry, PolymathRegistry.address, { from: PolymathAccount });
-        })
-        .then(() => {
-            // Assign the address into the FeatureRegistry key
-            return polymathRegistry.changeAddress("FeatureRegistry", FeatureRegistry.address, { from: PolymathAccount });
-        })
-        .then(() => {
             // J) Deploy the SecurityTokenRegistry contract (Used to hold the deployed secuirtyToken details. It also act as the interface to deploy the SecurityToken)
             return deployer.deploy(SecurityTokenRegistry, { from: PolymathAccount });
         })
@@ -349,21 +341,20 @@ module.exports = function(deployer, network, accounts) {
             return SecurityTokenRegistryProxy.at(address);
         })
         .then((securityTokenRegistryProxy) => {
+            stRegProxy = securityTokenRegistryProxy;
             return securityTokenRegistryProxy.upgradeTo("3.0.0", SecurityTokenRegistry.address, {
                 from: PolymathAccount
             });
         })
         .then(() => {
-            return SecurityTokenRegistry.at(SecurityTokenRegistryProxy.address);
+            return SecurityTokenRegistry.at(stRegProxy.address);
         })
-        .then((securityTokenRegistry) => {
-            return securityTokenRegistry.setProtocolFactory(STFactory.address, 3, 0, 0);
+        .then((securityTokenRegistryProxy) => {
+            stRegProxy = securityTokenRegistryProxy;
+            return stRegProxy.setProtocolFactory(STFactory.address, 3, 0, 0);
         })
         .then(() => {
-            return SecurityTokenRegistry.at(SecurityTokenRegistryProxy.address);
-        })
-        .then((securityTokenRegistry) => {
-            return securityTokenRegistry.setLatestVersion(3, 0, 0);
+            return stRegProxy.setLatestVersion(3, 0, 0);
         })
         .then(() => {
             // D) Register the PercentageTransferManagerFactory in the ModuleRegistry to make the factory available at the protocol level.
@@ -498,10 +489,9 @@ module.exports = function(deployer, network, accounts) {
             console.log(`
 
     ----------------------- Polymath Network Smart Contracts: -----------------------
-    PolymathRegistry:                     ${PolymathRegistry.address}
-    SecurityTokenRegistry (Proxy):        ${SecurityTokenRegistryProxy.address}
-    ModuleRegistry (Proxy):               ${ModuleRegistryProxy.address}
-    FeatureRegistry:                      ${FeatureRegistry.address}
+    PolymathRegistry:                     ${polymathRegistry.address}
+    SecurityTokenRegistry (Proxy):        ${stRegProxy.address}
+    ModuleRegistry (Proxy):               ${moduleRegProxy.address}
     STRGetter:                            ${STRGetter.address}
 
     ETHOracle:                            ${ETHOracle}
