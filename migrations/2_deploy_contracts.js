@@ -357,6 +357,9 @@ module.exports = function(deployer, network, accounts) {
             return stRegProxy.setLatestVersion(3, 0, 0);
         })
         .then(() => {
+            return stRegProxy.setGetterRegistry(STRGetter.address);
+        })
+        .then(() => {
             // D) Register the PercentageTransferManagerFactory in the ModuleRegistry to make the factory available at the protocol level.
             // So any securityToken can use that factory to generate the PercentageTransferManager contract.
             return moduleRegistry.registerModule(PercentageTransferManagerFactory.address, { from: PolymathAccount });
