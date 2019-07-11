@@ -118,6 +118,12 @@ contract ModuleRegistry is IModuleRegistry, EternalStorage {
         return IFeatureRegistry(getAddressValue(FEATURE_REGISTRY)).getFeatureStatus("customModulesAllowed");
     }
 
+    function _isCustomModule() internal view returns (bool custom) {
+        // NB- If Polymath call registerModule() function with the other address then the moduleFactory
+        // will fall into the custom module category
+        custom = msg.sender != owner() ? true : false;
+    }
+
 
     /**
      * @notice Called by a SecurityToken (2.x) to check if the ModuleFactory is verified or appropriate custom module
@@ -206,11 +212,19 @@ contract ModuleRegistry is IModuleRegistry, EternalStorage {
         uint8 moduleType = moduleTypes[0];
         require(uint256(moduleType) != 0, "Invalid type");
         set(Encoder.getKey("registry", _moduleFactory), uint256(moduleType));
-        set(
-            Encoder.getKey("moduleListIndex", _moduleFactory),
-            uint256(getArrayAddress(Encoder.getKey("moduleList", uint256(moduleType))).length)
-        );
-        pushArray(Encoder.getKey("moduleList", uint256(moduleType)), _moduleFactory);
+        if (_isCustomModule()) {
+            set(
+                Encoder.getKey("customModuleListIndex", _moduleFactory),
+                uint256(getArrayAddress(Encoder.getKey("customModuleList", uint256(moduleType))).length)
+            );
+            pushArray(Encoder.getKey("customModuleList", uint256(moduleType)), _moduleFactory);
+        } else {
+            set(
+                Encoder.getKey("moduleListIndex", _moduleFactory),
+                uint256(getArrayAddress(Encoder.getKey("moduleList", uint256(moduleType))).length)
+            );
+            pushArray(Encoder.getKey("moduleList", uint256(moduleType)), _moduleFactory);
+        }
         emit ModuleRegistered(_moduleFactory, factoryOwner);
     }
 
@@ -220,36 +234,41 @@ contract ModuleRegistry is IModuleRegistry, EternalStorage {
      */
     function removeModule(address _moduleFactory) external whenNotPausedOrOwner {
         uint256 moduleType = getUintValue(Encoder.getKey("registry", _moduleFactory));
-
         require(moduleType != 0, "Module factory should be registered");
         require(
             msg.sender == owner() || msg.sender == getAddressValue(Encoder.getKey("factoryOwner", _moduleFactory)),
             "msg.sender must be the Module Factory owner or registry curator"
         );
-        uint256 index = getUintValue(Encoder.getKey("moduleListIndex", _moduleFactory));
-        uint256 last = getArrayAddress(Encoder.getKey("moduleList", moduleType)).length - 1;
-        address temp = getArrayAddress(Encoder.getKey("moduleList", moduleType))[last];
-
-        // pop from array and re-order
-        if (index != last) {
-            // moduleList[moduleType][index] = temp;
-            setArrayIndexValue(Encoder.getKey("moduleList", moduleType), index, temp);
-            set(Encoder.getKey("moduleListIndex", temp), index);
+        if (_isCustomModule()) {
+            _deleteModule("customModuleListIndex", "customModuleList", _moduleFactory, moduleType);
+        } else {
+            _deleteModule("moduleListIndex", "moduleList", _moduleFactory, moduleType);
         }
-        deleteArrayAddress(Encoder.getKey("moduleList", moduleType), last);
-
         // delete registry[_moduleFactory];
         set(Encoder.getKey("registry", _moduleFactory), uint256(0));
         // delete reputation[_moduleFactory];
         setArray(Encoder.getKey("reputation", _moduleFactory), new address[](0));
         // delete verified[_moduleFactory];
         set(Encoder.getKey("verified", _moduleFactory), false);
-        // delete moduleListIndex[_moduleFactory];
-        set(Encoder.getKey("moduleListIndex", _moduleFactory), uint256(0));
         // delete module owner
         set(Encoder.getKey("factoryOwner", _moduleFactory), address(0));
         emit ModuleRemoved(_moduleFactory, msg.sender);
     }
+
+    function _deleteModule(string memory indexMap, string memory listMap, address _moduleFactory, uint256 moduleType) internal {  
+        uint256 index = getUintValue(Encoder.getKey(indexMap, _moduleFactory));
+        uint256 last = getArrayAddress(Encoder.getKey(listMap, moduleType)).length - 1;
+        address temp = getArrayAddress(Encoder.getKey(listMap, moduleType))[last];
+        // pop from array and re-order
+        if (index != last) {
+            // moduleList[moduleType][index] = temp; or customModuleList[moduleType][index] = temp;
+            setArrayIndexValue(Encoder.getKey(listMap, moduleType), index, temp);
+            set(Encoder.getKey(indexMap, temp), index);
+        }
+        deleteArrayAddress(Encoder.getKey(listMap, moduleType), last);
+        // delete moduleListIndex[_moduleFactory]; or delete customModuleListIndex[_moduleFactory];
+        set(Encoder.getKey(indexMap, _moduleFactory), uint256(0));
+    }   
 
     /**
     * @notice Called by Polymath to verify Module Factories for SecurityTokens to use.
@@ -341,7 +360,11 @@ contract ModuleRegistry is IModuleRegistry, EternalStorage {
      * @return address array which contains the list of securityTokens that use that module factory
      */
     function getFactoryDetails(address _factoryAddress) external view returns(bool, address, address[] memory) {
-        return (getBoolValue(Encoder.getKey("verified", _factoryAddress)), getAddressValue(Encoder.getKey("factoryOwner", _factoryAddress)), getArrayAddress(Encoder.getKey("reputation", _factoryAddress)));
+        return (
+            getBoolValue(Encoder.getKey("verified", _factoryAddress)),
+            getAddressValue(Encoder.getKey("factoryOwner", _factoryAddress)),
+            getArrayAddress(Encoder.getKey("reputation", _factoryAddress))
+        );
     }
 
     /**
