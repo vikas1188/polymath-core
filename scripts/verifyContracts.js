@@ -1,6 +1,3 @@
-// truffle run verify TokenLib --network kovan
-//
-
 const fs = require("fs");
 const path = require("path");
 const exec = require('child_process').execSync;
@@ -19,7 +16,7 @@ async function verifyContracts() {
   let files = await readFiles();
   files.forEach(item => {
     console.log('Verifying', path.basename(item, ".json"));
-    exec('truffle run verify ' + path.basename(item, ".json") + ' --network kovan');
+    exec('truffle run verify ' + path.basename(item, ".json") + ' --network mainnet');
   });
 }
 

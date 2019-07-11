@@ -22,16 +22,13 @@ module.exports = {
     },
     mainnet: {
       provider: () => {
-        // Replace with mainnet endpoint for deployment
-        // Using kovan endpoint by default to avoid accidental ether loss
-        let wallet = new HDWalletProvider(process.env.PRIVATE_KEY, process.env.KOVAN_ENDPOINT)
+        let wallet = new HDWalletProvider(process.env.PRIVATE_KEY, process.env.MAINNET_ENDPOINT)
         var nonceTracker = new NonceTrackerSubprovider()
         wallet.engine._providers.unshift(nonceTracker)
         nonceTracker.setEngine(wallet.engine)
         return wallet
       },
       network_id: '1', // Match any network id
-      gas: 7900000,
       gasPrice: 10000000000 // 10 gwei
     },
     ropsten: {
