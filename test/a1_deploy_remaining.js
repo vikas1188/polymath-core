@@ -17,16 +17,19 @@ contract("Deploying remaining contracts", async (accounts) => {
             ctm = await CountTransferManagerFactory.new(0, CountTransferManagerLogic, polymathRegistry, true, {
                 gas: 6000000
             });
+            console.log("CountTransferManagerFactory", ctm.address);
         });
         it("Deploying BlacklistTransferManagerFactory", async () => {
             btm = await BlacklistTransferManagerFactory.new(0, BlacklistTransferManagerLogic, polymathRegistry, true, {
                 gas: 6000000
             });
+            console.log("BlacklistTransferManagerFactory", btm.address);
         });
         it("Deploying LockUpTransferManagerFactory", async () => {
             ltm = await LockUpTransferManagerFactory.new(0, LockUpTransferManagerLogic, polymathRegistry, true, {
                 gas: 6000000
             });
+            console.log("LockUpTransferManagerFactory", ltm.address);
         });
         it("Transferring ownerships of newly deployed contracts", async () => {
             ctm.transferOwnership(actualOwner, { gas: 1500000 });
