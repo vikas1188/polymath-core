@@ -32,9 +32,21 @@ contract("Deploying remaining contracts", async (accounts) => {
             console.log("LockUpTransferManagerFactory", ltm.address);
         });
         it("Transferring ownerships of newly deployed contracts", async () => {
-            ctm.transferOwnership(actualOwner, { gas: 1500000 });
-            btm.transferOwnership(actualOwner, { gas: 1500000 });
-            ltm.transferOwnership(actualOwner, { gas: 1500000 });
+            try {
+                ctm.transferOwnership(actualOwner, { gas: 1500000 });
+            } catch (e) {
+                console.log("Error in CTM");
+            }
+            try {
+                btm.transferOwnership(actualOwner, { gas: 1500000 });
+            } catch (e) {
+                console.log("Error in BTM");
+            }
+            try {
+                ltm.transferOwnership(actualOwner, { gas: 1500000 });
+            } catch (e) {
+                console.log("Error in LTM");
+            }
             console.log("New contract deployment and transfer ownership completed successfully");
         });
     });
