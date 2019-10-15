@@ -43,7 +43,7 @@ The diagram below depicts a high-level view of the various modules, registries, 
 ## Components
 ### Polymath Registries
 
-**Security Token Registry (STR)** - This registry tells us which tokens and tickers have been registered to it. This allows us to prevent people from reserving the same ticker as another issuer as well checking for inputs such as making sure it is a maximum of 10 characters and what the expiry date is on the respective ticker. Right now, if you reserve a ticker it last for 60 days. After it expires someone else can go ahead and reserve it or they you can re-register it.
+**Security Token Registry (STR)** - This registry tells us which tokens and tickers have been registered to it. This allows us to prevent people from reserving the same ticker as another issuer as well checking for inputs such as making sure it is a maximum of 10 characters and what the expiry date is on the respective ticker. Right now, if you reserve a ticker it last for 60 days. After it expires, someone else can go ahead and reserve it or you can re-register it.
 
 With the **2.0.0 Core Release**, when you deploy a token you do it through the ST registry and it keeps a record of which tokens have been registered within it. 
 
